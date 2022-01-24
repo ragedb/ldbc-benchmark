@@ -50,32 +50,32 @@ LDBC Social Network - Size 01
 	Running 1m test @ http://0.0.0.0:7243
 	  8 threads and 8 connections
 	  Thread Stats   Avg      Stdev     Max   +/- Stdev
-	    Latency     0.97ms  405.22us   4.76ms   72.30%
-	    Req/Sec     1.05k    55.17     1.25k    69.90%
+	    Latency     0.98ms  398.23us   6.67ms   71.69%
+	    Req/Sec     1.03k    54.01     1.22k    69.35%
 	  Latency Distribution
-	     50%    0.90ms
-	     75%    1.18ms
-	     90%    1.49ms
-	     99%    2.23ms
-	  499328 requests in 1.00m, 509.07MB read
-	Requests/sec:   8319.84
-	Transfer/sec:      8.48MB
+	     50%    0.92ms
+	     75%    1.20ms
+	     90%    1.50ms
+	     99%    2.21ms
+	  490597 requests in 1.00m, 500.20MB read
+	Requests/sec:   8174.47
+	Transfer/sec:      8.33MB
 
 
 	./wrk -c 8 -t 8 -d 60s -s ../ldbc/wrk/is3-date-formatted.lua --latency http://0.0.0.0:7243
 	Running 1m test @ http://0.0.0.0:7243
 	  8 threads and 8 connections
 	  Thread Stats   Avg      Stdev     Max   +/- Stdev
-	    Latency     1.28ms  604.89us  35.16ms   80.96%
-	    Req/Sec   789.67     50.99     0.98k    73.21%
+	    Latency     1.27ms  497.57us   7.69ms   71.51%
+	    Req/Sec   790.42     47.60     0.95k    68.15%
 	  Latency Distribution
 	     50%    1.20ms
-	     75%    1.55ms
-	     90%    1.93ms
-	     99%    2.87ms
-	  377387 requests in 1.00m, 418.59MB read
-	Requests/sec:   6287.42
-	Transfer/sec:      6.97MB
+	     75%    1.54ms
+	     90%    1.92ms
+	     99%    2.85ms
+	  377751 requests in 1.00m, 419.00MB read
+	Requests/sec:   6293.44
+	Transfer/sec:      6.98MB
 
 
 ### Import Tweaks
