@@ -27,3 +27,14 @@ LDBC Social Network - Size 01
 	  2549940 requests in 1.00m, 811.53MB read
 	Requests/sec:  42428.93
 	Transfer/sec:     13.50MB
+
+### Import Tweaks
+
+Change person_knows_person_0_0.csv header from:
+
+	Person.id|Person.id|creationDate
+
+to
+
+	Person1.id|Person2.id|creationDate
+

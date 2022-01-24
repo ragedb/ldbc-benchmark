@@ -1,10 +1,9 @@
-local ftcsv = require("ftcsv")
 for i, person in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/person_0_0.csv", "|") do
    NodeAdd("Person", person.id, "{\"firstName\":".."\""..person.firstName.."\",
    \"lastName\":".."\""..person.lastName.."\",
    \"gender\":".."\""..person.gender.."\",
    \"birthday\":".."\""..person.birthday.."\",
-   \"creationDate\":".."\""..person.creationDate.."\",
+   \"creationDate\":"..date(person.creationDate):todouble()..",
    \"locationIP\":".."\""..person.locationIP.."\",
    \"browserUsed\":".."\""..person.browserUsed.."\"}")
 end
@@ -20,4 +19,8 @@ for i, isLocatedIn in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/perso
     RelationshipAdd("IS_LOCATED_IN", "Person", isLocatedIn['Person.id'], "Place", isLocatedIn['Place.id'])
 end
 
-NodeTypesGetCountByType("Person"), NodeTypesGetCountByType("Place"), RelationshipTypesGetCountByType("IS_LOCATED_IN")
+for i, knows in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/person_knows_person_0_0.csv", "|") do
+    RelationshipAdd("KNOWS", "Person", knows['Person1.id'], "Person", knows['Person2.id'])
+end
+
+NodeTypesGetCountByType("Person"), NodeTypesGetCountByType("Place"), RelationshipTypesGetCountByType("IS_LOCATED_IN"), RelationshipTypesGetCountByType("KNOWS")
