@@ -35,7 +35,7 @@ for i, know in pairs(knows) do
 end
 
 sorted = {}
-table.sort(order)
+table.sort(order, function(a, b) return a > b end)
 for i,n in pairs(order) do 
     table.insert(sorted, friendships[n])
 end
@@ -60,7 +60,7 @@ for i, know in pairs(knows) do
 
   friendships[creation] = friendship
 end
-table.sort(order)
+table.sort(order, function(a, b) return a > b end)
 sorted = {}
 for i,n in pairs(order) do 
     table.insert(sorted, friendships[n])
