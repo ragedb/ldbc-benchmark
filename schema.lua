@@ -1,0 +1,17 @@
+NodeTypeInsert("Person")
+NodePropertyTypeAdd("Person", "firstName", "string")
+NodePropertyTypeAdd("Person", "lastName", "string")
+NodePropertyTypeAdd("Person", "gender", "string")
+NodePropertyTypeAdd("Person", "birthday", "string")
+NodePropertyTypeAdd("Person", "creationDate", "string")
+NodePropertyTypeAdd("Person", "locationIP", "string")
+NodePropertyTypeAdd("Person", "browserUsed", "string")
+
+NodeTypeInsert("Place")
+NodePropertyTypeAdd("Place", "name", "string")
+NodePropertyTypeAdd("Place", "url", "string")
+NodePropertyTypeAdd("Place", "type", "string")
+
+RelationshipTypeInsert("IS_LOCATED_IN")
+RelationshipTypeInsert("IS_PART_OF")
+NodeTypesGet(), RelationshipTypesGet()

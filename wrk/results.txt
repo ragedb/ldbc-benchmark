@@ -1,0 +1,1 @@
+./wrk -c 192 -t 32 -d 10s -s ../ragedb/LDBC/wrk/is1.lua --latency http://0.0.0.0:7243

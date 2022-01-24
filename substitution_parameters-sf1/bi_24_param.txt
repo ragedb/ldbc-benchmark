@@ -1,0 +1,17 @@
+tagClass
+Single
+Album
+Person
+MusicalArtist
+OfficeHolder
+Writer
+BritishRoyalty
+TennisPlayer
+Philosopher
+Song
+President
+Saint
+Monarch
+Thing
+Scientist
+Artist
