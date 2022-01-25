@@ -102,3 +102,11 @@ Change tagclass_isSubclassOf_tagclass_0_0.csv header from:
 to
 
 	TagClass1.id|TagClass2.id
+
+Change place_isPartOf_place_0_0.csv header from:
+
+	Place.id|Place.id
+
+to
+
+	Place1.id|Place2.id
