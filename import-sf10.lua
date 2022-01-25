@@ -1,4 +1,4 @@
-for i, person in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/person_0_0.csv", "|") do
+for i, person in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/person_0_0.csv", "|") do
    NodeAdd("Person", person.id, "{\"firstName\":".."\""..person.firstName.."\",
    \"lastName\":".."\""..person.lastName.."\",
    \"gender\":".."\""..person.gender.."\",
@@ -8,37 +8,42 @@ for i, person in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/person_0_0
    \"browserUsed\":".."\""..person.browserUsed.."\"}")
 end
 
-for i, place in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/place_0_0.csv", "|") do
+for i, place in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/place_0_0.csv", "|") do
    local type = place.type:sub(1,1):upper()..place.type:sub(2)
    NodeAdd("Place", place.id, "{\"name\":".."\""..place.name.."\",
    \"url\":".."\""..place.url.."\",
    \"type\":".."\""..type.."\"}")
 end
 
-for i, tag in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/tag_0_0.csv", "|") do
+for i, tag in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/tag_0_0.csv", "|") do
    NodeAdd("Tag", tag.id, "{\"name\":".."\""..tag.name.."\",\"url\":".."\""..tag.url.."\"}")
 end
 
-for i, tagclass in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/tagclass_0_0.csv", "|") do
+for i, tagclass in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/tagclass_0_0.csv", "|") do
    NodeAdd("TagClass", tagclass.id, "{\"name\":".."\""..tagclass.name.."\",\"url\":".."\""..tagclass.url.."\"}")
 end
 
-for i, isLocatedIn in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/person_isLocatedIn_place_0_0.csv", "|") do
+for i, isLocatedIn in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/person_isLocatedIn_place_0_0.csv", "|") do
     RelationshipAdd("IS_LOCATED_IN", "Person", isLocatedIn['Person.id'], "Place", isLocatedIn['Place.id'])
 end
 
-for i, knows in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/person_knows_person_0_0.csv", "|") do
+for i, knows in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/person_knows_person_0_0.csv", "|") do
     RelationshipAdd("KNOWS", "Person", knows['Person1.id'], "Person", knows['Person2.id'], "{\"creationDate\":"..date(knows.creationDate):todouble().."}")
 end
 
-for i, hasInterest in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/person_hasInterest_tag_0_0.csv", "|") do
-    RelationshipAdd("HAS_INTEREST", "Person", hasInterest['Person.id'], "Person", hasInterest['Tag.id'])
+for i, hasInterest in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/person_hasInterest_tag_0_0.csv", "|") do
+    RelationshipAdd("HAS_INTEREST", "Person", hasInterest['Person.id'], "Tag", hasInterest['Tag.id'])
 end
 
-for i, hasType in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/tag_hasType_tagclass_0_0.csv", "|") do
+for i, hasType in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/tag_hasType_tagclass_0_0.csv", "|") do
     RelationshipAdd("HAS_TYPE", "Person", hasType['Tag.id'], "Person", hasType['TagClass.id'])
 end
 
+for i, isSubclassOf in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/tag_hasType_tagclass_0_0.csv", "|") do
+    RelationshipAdd("IS_SUBCLASS_OF", "TagClass", isSubclassOf['TagClass1.id'], "TagClass", isSubclassOf['TagClass2.id'])
+end
+
+tagclass_isSubclassOf_tagclass_0_0
 
 
 nodes = {

@@ -21,7 +21,7 @@ function load_ids_from_file(file)
   return found_ids
 end
 
-ids = load_ids_from_file("/home/max/CLionProjects/ldbc/substitution_parameters-sf1/interactive_1_param.txt")
+ids = load_ids_from_file("/home/max/CLionProjects/ldbc/substitution_parameters-sf10/interactive_1_param.txt")
 
 request = function()
     id = tostring(ids[math.random(#ids)])

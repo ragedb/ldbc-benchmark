@@ -24,6 +24,7 @@ RelationshipTypeInsert("IS_LOCATED_IN")
 RelationshipTypeInsert("IS_PART_OF")
 RelationshipTypeInsert("HAS_INTEREST")
 RelationshipTypeInsert("HAS_TYPE")
+RelationshipTypeInsert("IS_SUBCLASS_OF")
 RelationshipTypeInsert("KNOWS")
 RelationshipPropertyTypeAdd("KNOWS", "creationDate", "double")
 

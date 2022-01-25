@@ -152,7 +152,7 @@ function load_ids_from_file(file)
   return found_ids
 end
 
-ids = load_ids_from_file("/home/max/CLionProjects/ldbc/substitution_parameters-sf1/interactive_3_param.txt")
+ids = load_ids_from_file("/home/max/CLionProjects/ldbc/substitution_parameters-sf10/interactive_3_param.txt")
 io.write(table.concat(ids, ", "))
 
 counter = 1
@@ -170,7 +170,6 @@ request = function()
 
     path = "/db/rage/lua"
     wrk.method = "POST"
-    wrk.body   = 'local person = NodeGet("Person", '..id..') \n local friendships = {} \n local order = {} \n local knows = NodeGetRelationshipsIdsByIdForType(person:getId(), "KNOWS") \n for i, know in pairs(knows) do \n creation = RelationshipPropertyGet(know:getRelationshipId(),"creationDate") \n table.insert(order, creation) \n  friend = NodePropertiesGetById(know:getNodeId()) \n   friendship = { ["personId"] = friend["id"], ["firstName"] = friend["firstName"], ["lastName"] = friend["lastName"], ["friendshipCreationDate"] = creation } \n friendships[creation] = friendship \n end \n sorted = {} \n for i,n in pairs(order) do \n table.insert(sorted, friendships[n]) \n end \n sorted'
-    wrk.body   = 'local person = NodeGet("Person", '..id..') \n person'
+    wrk.body   = 'local person = NodeGet("Person", '..id..') \n local friendships = {} \n local order = {} \n local knows = NodeGetRelationshipsIdsByIdForType(person:getId(), "KNOWS") \n for i, know in pairs(knows) do \n creation = RelationshipPropertyGet(know:getRelationshipId(),"creationDate") \n table.insert(order, creation) \n  friend = NodePropertiesGetById(know:getNodeId()) \n   friendship = { ["personId"] = friend["id"], ["firstName"] = friend["firstName"], ["lastName"] = friend["lastName"], ["friendshipCreationDate"] = creation } \n friendships[creation] = friendship \n end \n sorted = {} \n table.sort(order, function(a, b) return a > b end) \n for i,n in pairs(order) do \n table.insert(sorted, friendships[n]) \n end \n sorted'
     return wrk.format(nil, path)
 end
