@@ -66,3 +66,44 @@ for i,n in pairs(order) do
     table.insert(sorted, friendships[n])
 end
 sorted
+
+ 
+
+-- Sample IS 4 - (content)
+local message = NodePropertiesGet("Message", "4947802324992")
+result = {
+  ["messageCreationDate"] = date(message["creationDate"]):fmt("${iso}Z"),
+  ["messageContent"] = message["content"]
+}
+
+if (message["content"] == '') then
+    result["messageContent"] =  message["imageFile"]
+end    
+
+result
+
+
+-- Sample IS 4 - (image)
+local message = NodePropertiesGet("Message", "1649267441795")
+result = {
+  ["messageCreationDate"] = date(message["creationDate"]):fmt("${iso}Z"),
+  ["messageContent"] = message["content"]
+}
+
+if (message["content"] == '') then
+    result["messageContent"] =  message["imageFile"]
+end    
+
+result
+
+-- Sample IS 5 
+local person = NodeGetNeighborsForDirectionForType("Message", "1236950581248", Direction.OUT, "HAS_CREATOR")[1]
+local properties = person:getProperties()
+local result = {
+  ["personId"] = person:getKey(),
+  ["firstName"] = properties["firstName"],
+  ["lastName"] = properties["lastName"]
+}
+
+result
+

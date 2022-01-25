@@ -43,6 +43,22 @@ for i, message in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/post_0_0.
     \"length\":"..message.length..",\"creationDate\":"..date(message.creationDate):todouble()..",\"type\":\"post\"}")
 end
 
+for i, message in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/comment_0_0.csv", "|") do
+   NodeAdd("Message", message.id, "{\"locationIP\":".."\""..message.locationIP.."\",
+    \"browserUsed\":".."\""..message.browserUsed.."\",
+    \"content\":".."\""..message.content.."\",
+    \"length\":"..message.length..",\"creationDate\":"..date(message.creationDate):todouble()..",\"type\":\"comment\"}")
+end
+
+
+for i, hasCreator in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/post_hasCreator_person_0_0.csv", "|") do
+    RelationshipAdd("HAS_CREATOR", "Message", hasCreator['Post.id'], "Person", hasCreator['Person.id'])
+end
+
+for i, hasCreator in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/comment_hasCreator_person_0_0.csv", "|") do
+    RelationshipAdd("HAS_CREATOR", "Message", hasCreator['Comment.id'], "Person", hasCreator['Person.id'])
+end
+
 for i, isLocatedIn in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/person_isLocatedIn_place_0_0.csv", "|") do
     RelationshipAdd("IS_LOCATED_IN", "Person", isLocatedIn['Person.id'], "Place", isLocatedIn['Place.id'])
 end

@@ -40,7 +40,7 @@ NodePropertyTypeAdd("TagClass", "name", "string")
 NodePropertyTypeAdd("TagClass", "url", "string")
 
 
-
+RelationshipTypeInsert("HAS_CREATOR")
 RelationshipTypeInsert("HAS_INTEREST")
 RelationshipTypeInsert("HAS_MEMBER")
 RelationshipPropertyTypeAdd("HAS_MEMBER", "joinDate", "double")
