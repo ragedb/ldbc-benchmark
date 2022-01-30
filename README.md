@@ -110,3 +110,28 @@ Change place_isPartOf_place_0_0.csv header from:
 to
 
 	Place1.id|Place2.id
+
+Change comment_replyOf_comment_0_0.csv header from:
+
+	Comment.id|Comment.id
+
+to
+
+	Comment1.id|Comment2.id
+
+### Import Statistics
+
+Size 01 h: 0 m: 2 s: 39 ms: 963
+
+	
+	[{"Message":3055774,"Forum":90492,"Organisation":7955,"TagClass":71,"Person":9892,"Tag":16080,"Place":1460},
+	{"IS_PART_OF":1454,"STUDY_AT":7949,"HAS_TYPE":16080,"IS_LOCATED_IN":3073621,"CONTAINER_OF":1003605,"KNOWS":180623,
+	"WORK_AT":21654,"HAS_INTEREST":229166,"HAS_MODERATOR":90492,"LIKES":2190095,"HAS_MEMBER":1611869,"HAS_TAG":3721417}]
+
+Size 10 h: 0 m: 27 s: 58 ms: 341 
+
+	[{"Message":29301171,"Forum":595453,"Person":65645,"Organisation":7955,"TagClass":71,"Place":1460,"Tag":16080},
+	{"HAS_MODERATOR":595453,"HAS_MEMBER":17168614,"IS_LOCATED_IN":29374771,"CONTAINER_OF":7435696,"STUDY_AT":52632,
+	"WORK_AT":143553,"LIKES":28789235,"IS_PART_OF":1454,"HAS_INTEREST":1535511,"KNOWS":1938516,"HAS_TAG":38405214,"HAS_TYPE":16080}]	
+
+Memory Usage: 	25.4 GB
