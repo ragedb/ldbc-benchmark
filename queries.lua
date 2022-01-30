@@ -130,3 +130,44 @@ local result = {
 }
 
 result
+
+
+-- Sample IS 7
+local message_id = "1236950581248"
+local message_node_id = NodeGetId("Message", message_id)
+local author = NodeGetNeighborsByIdForDirectionForType(message_node_id, Direction.OUT, "HAS_CREATOR")[1]
+local knows = NodeGetRelationshipsIdsByIdForType(author:getId(), "KNOWS")
+local knows_ids = {}
+for i, know in pairs (knows) do
+  table.insert(knows_ids, know:getNodeId())
+end
+
+comments = {}
+order = {}
+local replies = NodeGetNeighborsByIdForDirectionForType(message_node_id, Direction.IN, "REPLY_OF")
+for i, reply in pairs (replies) do
+  creation = reply:getProperties()["creationDate"]
+  table.insert(order, creation)
+  local replyAuthor = NodeGetNeighborsByIdForDirectionForType(reply:getId(), Direction.OUT, "HAS_CREATOR")[1]
+  local known = false;
+  if(knows_ids[replyAuthor:getId()]) then known = true end
+  comment = {
+    ["replyAuthorId"] = replyAuthor:getKey(),
+    ["replyAuthorFirstName"] = replyAuthor:getProperties()["firstName"],
+    ["replyAuthorLastName"] = replyAuthor:getProperties()["lastName"],
+    ["replyAuthorKnowsOriginalMessageAuthor"] = known,
+    ["commentId"] = reply:getKey(),
+    ["commentContent"] = reply["content"],
+    ["commentCreationDate"] = date(creation):fmt("${iso}Z")
+  }
+  comments[creation] = comment
+
+end
+
+
+table.sort(order, function(a, b) return a > b end)
+sorted = {}
+for i,n in pairs(order) do 
+    table.insert(sorted, comments[n])
+end
+sorted
