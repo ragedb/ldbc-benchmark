@@ -107,3 +107,26 @@ local result = {
 
 result
 
+
+-- Sample IS 6
+local message_id = "2061584302091"
+local node_id = NodeGetId("Message", message_id)
+local links = NodeGetRelationshipsIdsByIdForDirectionForType(node_id, Direction.IN, "CONTAINER_OF")
+while (#links == 0) do
+    links = NodeGetRelationshipsIdsByIdForDirectionForType(node_id, Direction.OUT, "REPLY_OF")
+    node_id = links[1]:getNodeId()
+    links = NodeGetRelationshipsIdsByIdForDirectionForType(node_id , Direction.IN, "CONTAINER_OF")  
+end
+node_id= links[1]:getNodeId()
+local forum = NodeGet(node_id)
+local moderator = NodeGetNeighborsByIdForDirectionForType(node_id, Direction.OUT, "HAS_MODERATOR")[1]
+local properties = moderator:getProperties()
+local result = {
+  ["forumId"] = forum:getKey(),
+  ["forumTitle"] = forum:getProperties["title"],
+  ["moderatorId"] = moderator:getKey(),
+  ["moderatorFirstName"] = properties["firstName"],
+  ["moderatorLastName"] = properties["lastName"]
+}
+
+result
