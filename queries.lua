@@ -1,6 +1,6 @@
 -- Sample IS 1
 local person = NodeGet("Person", "933")
-local isLocatedIn = NodeGetRelationshipsIdsByIdForDirectionForType(person:getId(), Direction.OUT, "IS_LOCATED_IN")
+local isLocatedIn = NodeGetLinksByIdForDirectionForType(person:getId(), Direction.OUT, "IS_LOCATED_IN")
 result = person:getProperties()
 result["city_id"] = NodeGetKey(isLocatedIn[1]:getNodeId())
 result
@@ -8,7 +8,7 @@ result
 
 -- Sample IS 1 with Date format
 local person = NodeGet("Person", "933")
-local isLocatedIn = NodeGetRelationshipsIdsByIdForDirectionForType(person:getId(), Direction.OUT, "IS_LOCATED_IN")
+local isLocatedIn = NodeGetLinksByIdForDirectionForType(person:getId(), Direction.OUT, "IS_LOCATED_IN")
 result = person:getProperties()
 result["city_id"] = NodeGetKey(isLocatedIn[1]:getNodeId())
 result["creationDate"] = date(result["creationDate"]):fmt("${iso}Z") 
@@ -19,7 +19,7 @@ result
 local person = NodeGet("Person", "933")
 local friendships = {}
 local order = {}
-local knows = NodeGetRelationshipsIdsByIdForType(person:getId(), "KNOWS")
+local knows = NodeGetLinksByIdForType(person:getId(), "KNOWS")
 for i, know in pairs(knows) do
   creation = RelationshipPropertyGet(know:getRelationshipId(),"creationDate")
   table.insert(order, creation)
@@ -46,7 +46,7 @@ sorted
 local person = NodeGet("Person", "17592186055119")
 local friendships = {}
 local order = {}
-local knows = NodeGetRelationshipsIdsByIdForType(person:getId(), "KNOWS")
+local knows = NodeGetLinksByIdForType(person:getId(), "KNOWS")
 for i, know in pairs(knows) do
   creation = RelationshipPropertyGet(know:getRelationshipId(),"creationDate")
   table.insert(order, creation)
@@ -111,19 +111,19 @@ result
 -- Sample IS 6
 local message_id = "2061584302091"
 local node_id = NodeGetId("Message", message_id)
-local links = NodeGetRelationshipsIdsByIdForDirectionForType(node_id, Direction.IN, "CONTAINER_OF")
+local links = NodeGetLinksByIdForDirectionForType(node_id, Direction.IN, "CONTAINER_OF")
 while (#links == 0) do
-    links = NodeGetRelationshipsIdsByIdForDirectionForType(node_id, Direction.OUT, "REPLY_OF")
+    links = NodeGetLinksByIdForDirectionForType(node_id, Direction.OUT, "REPLY_OF")
     node_id = links[1]:getNodeId()
-    links = NodeGetRelationshipsIdsByIdForDirectionForType(node_id , Direction.IN, "CONTAINER_OF")  
+    links = NodeGetLinksByIdForDirectionForType(node_id , Direction.IN, "CONTAINER_OF")  
 end
-node_id= links[1]:getNodeId()
+node_id = links[1]:getNodeId()
 local forum = NodeGet(node_id)
 local moderator = NodeGetNeighborsByIdForDirectionForType(node_id, Direction.OUT, "HAS_MODERATOR")[1]
 local properties = moderator:getProperties()
 local result = {
   ["forumId"] = forum:getKey(),
-  ["forumTitle"] = forum:getProperties["title"],
+  ["forumTitle"] = forum:getProperties()["title"],
   ["moderatorId"] = moderator:getKey(),
   ["moderatorFirstName"] = properties["firstName"],
   ["moderatorLastName"] = properties["lastName"]
@@ -136,7 +136,7 @@ result
 local message_id = "1236950581248"
 local message_node_id = NodeGetId("Message", message_id)
 local author = NodeGetNeighborsByIdForDirectionForType(message_node_id, Direction.OUT, "HAS_CREATOR")[1]
-local knows = NodeGetRelationshipsIdsByIdForType(author:getId(), "KNOWS")
+local knows = NodeGetLinksByIdForType(author:getId(), "KNOWS")
 local knows_ids = {}
 for i, know in pairs (knows) do
   table.insert(knows_ids, know:getNodeId())
@@ -164,10 +164,99 @@ for i, reply in pairs (replies) do
 
 end
 
-
 table.sort(order, function(a, b) return a > b end)
 sorted = {}
 for i,n in pairs(order) do 
     table.insert(sorted, comments[n])
 end
 sorted
+
+
+-- Sample IC 1
+-- Given a start *Person*, find *Persons* with a given first name (`firstName`) that the 
+-- start *Person* is connected to (excluding start *Person*) by at most 3 steps via the *knows* relationships. 
+-- Return *Persons*, including the distance (1..3), summaries of the *Persons* workplaces and places of study.
+local targets = FindNodeIds("Person", "firstName", Operation.EQ, "Chen", 0, 999999)
+local node_id = NodeGetId("Person", "1242")
+local people = NodeGetLinksByIdForType(node_id, "KNOWS")
+local seen1 = Roar.new()
+local seen2 = Roar.new()
+local seen3 = Roar.new()
+
+seen1:addNodeIds(people)
+
+local people2 = LinksGetLinksForType(people, "KNOWS")
+for i,links in pairs(people2) do 
+  seen2:addNodeIds(links)
+end  
+seen2:inplace_difference(seen1)
+seen2:remove(node_id)
+
+local people3 = LinksGetLinksForType(seen2:getNodeHalfLinks(), "KNOWS")  
+for i,links2 in pairs(people3) do 
+  seen3:addNodeIds(links2) 
+end
+seen3:inplace_difference(seen2)
+seen3:inplace_difference(seen1)
+seen3:remove(node_id)
+
+local node_ids = Roar.new()
+node_ids:addIds(targets)
+seen1:inplace_intersection(node_ids)
+seen2:inplace_intersection(node_ids)
+seen3:inplace_intersection(node_ids)
+local known = {}
+local found = {seen1, seen2, seen3}
+for i, seen in pairs(found) do
+  -- change this to get just the last name and key from nodes, then after limit 20 get the nodes and university, jobs, etc
+  for j, person in pairs(NodesGet(seen:getIds())) do
+    local properties = person:getProperties()
+      otherPerson = {
+        ["otherPerson.id"] = person:getKey(),
+        ["otherPerson.lastName"] = properties["lastName"],
+        ["distanceFromPerson"] = i,
+        ["otherPerson.birthday"] = properties["birthday"],
+        ["otherPerson.creationDate"] = properties["creationDate"],
+        ["otherPerson.gender"] = properties["gender"],
+        ["otherPerson.browserUsed"] = properties["browserUsed"],
+        ["otherPerson.locationIP"] = properties["locationIP"],
+        ["otherPerson.email"] = properties["email"],
+        ["otherPerson.speaks"] = properties["speaks"]
+      }
+      table.insert(known, otherPerson)
+  end
+end
+
+sorted = {}
+table.sort(known, function(a,b) return a["distanceFromPerson"] < b["distanceFromPerson"] end)
+
+for i,v in ipairs(known) do
+ table.insert(sorted, v)
+end
+table.unpack(sorted, 1, 20)
+
+
+  - name: otherPerson.birthday
+    type: Date
+  - name: otherPerson.creationDate
+    type: DateTime
+  - name: otherPerson.gender
+    type: String
+  - name: otherPerson.browserUsed
+    type: String
+  - name: otherPerson.locationIP
+    type: String
+  - name: otherPerson.email
+    type: \{Long String\}
+  - name: otherPerson.speaks
+    type: \{String\}
+  - name: locationCity.name
+    type: String
+  - name: universities
+    type: \{\<String, 32-bit Integer, String>\}
+    description: "`{<university.name, studyAt.classYear, universityCity.name>}`"
+    category: aggregated
+  - name: companies
+    type: \{\<String, 32-bit Integer, String>\}
+    description: "`{<company.name, workAt.workFrom, companyCountry.name>}`"
+    category: aggregated

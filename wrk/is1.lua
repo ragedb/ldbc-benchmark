@@ -27,6 +27,6 @@ request = function()
     id = tostring(ids[math.random(#ids)])
     path = "/db/rage/lua"
     wrk.method = "POST"
-    wrk.body   = 'local person = NodeGet("Person", '..id..') \n local isLocatedIn = NodeGetRelationshipsIdsByIdForDirectionForType(person:getId(), Direction.OUT, "IS_LOCATED_IN") \n result = person:getProperties() \n result["city_id"] = NodeGetKey(isLocatedIn[1]:getNodeId()) \n result'
+    wrk.body   = 'local person = NodeGet("Person", '..id..') \n local isLocatedIn = NodeGetLinksByIdForDirectionForType(person:getId(), Direction.OUT, "IS_LOCATED_IN") \n result = person:getProperties() \n result["city_id"] = NodeGetKey(isLocatedIn[1]:getNodeId()) \n result'
     return wrk.format(nil, path)
 end
