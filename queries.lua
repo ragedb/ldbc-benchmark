@@ -177,7 +177,7 @@ sorted
 -- start *Person* is connected to (excluding start *Person*) by at most 3 steps via the *knows* relationships. 
 -- Return *Persons*, including the distance (1..3), summaries of the *Persons* workplaces and places of study.
 local targets = FindNodeIds("Person", "firstName", Operation.EQ, "Chen", 0, 999999)
-local node_id = NodeGetId("Person", "1242")
+local node_id = NodeGetId("Person", "1129")
 local people = NodeGetLinksByIdForType(node_id, "KNOWS")
 local seen1 = Roar.new()
 local seen2 = Roar.new()
@@ -192,7 +192,7 @@ end
 seen2:inplace_difference(seen1)
 seen2:remove(node_id)
 
-local people3 = LinksGetLinksForType(seen2:getNodeHalfLinks(), "KNOWS")  
+local people3 = LinksGetLinksForType(seen2:getNodeHalfLinks(), "KNOWS") 
 for i,links2 in pairs(people3) do 
   seen3:addNodeIds(links2) 
 end
@@ -207,56 +207,69 @@ seen2:inplace_intersection(node_ids)
 seen3:inplace_intersection(node_ids)
 local known = {}
 local found = {seen1, seen2, seen3}
-for i, seen in pairs(found) do
-  -- change this to get just the last name and key from nodes, then after limit 20 get the nodes and university, jobs, etc
-  for j, person in pairs(NodesGet(seen:getIds())) do
-    local properties = person:getProperties()
+
+for i = 1, #found do
+  if (found[i]:cardinality() > 0) then
+    local lastNames = NodesGetProperty(found[i]:getIds(), "lastName")
+    local keys = NodesGetKey(found[i]:getIds())
+
+    for j = 1, found[i]:cardinality() do
       otherPerson = {
-        ["otherPerson.id"] = person:getKey(),
+        ["otherPerson.id"] = keys[j],
+        ["otherPerson.lastName"] = lastNames[j],
+        ["distanceFromPerson"] = i
+      }
+      table.insert(known, otherPerson)
+    end
+  end
+end
+
+function sort_on_values(t,...)
+  local a = {...}
+  table.sort(t, function (u,v)
+    for i = 1, #a do
+      if u[a[i]] > v[a[i]] then return false end
+      if u[a[i]] < v[a[i]] then return true end
+    end
+  end)
+end
+
+sort_on_values(known,"distanceFromPerson","otherPerson.lastName", "otherPerson.id")
+local smaller =  table.move(known, 1, 20, 1, {})
+
+local results = {}
+for j, person in pairs(smaller) do
+    
+    local studied = NodeGetRelationshipsForDirectionForType("Person", person["otherPerson.id"], Direction.OUT, "STUDY_AT" )
+    local studied_list = {}
+    for s = 1, #studied do
+        table.insert(studied_list, NodePropertyGetById(studied[s]:getEndingNodeId(), "name"))
+        table.insert(studied_list, RelationshipPropertyGet(studied[s]:getId(), "classYear"))
+    end
+    
+    local worked = NodeGetRelationshipsForDirectionForType("Person", person["otherPerson.id"], Direction.OUT, "WORK_AT" )
+    local worked_list = {}
+    for s = 1, #worked do
+          table.insert(worked_list, NodePropertyGetById(worked[s]:getEndingNodeId(), "name"))
+          table.insert(worked_list, RelationshipPropertyGet(worked[s]:getId(), "workFrom"))
+    end
+  
+    local properties = NodePropertiesGet("Person", person["otherPerson.id"] )
+      otherPerson = {
+        ["otherPerson.id"] = person["otherPerson.id"],
         ["otherPerson.lastName"] = properties["lastName"],
-        ["distanceFromPerson"] = i,
+        ["distanceFromPerson"] = person["distanceFromPerson"],
         ["otherPerson.birthday"] = properties["birthday"],
         ["otherPerson.creationDate"] = properties["creationDate"],
         ["otherPerson.gender"] = properties["gender"],
         ["otherPerson.browserUsed"] = properties["browserUsed"],
         ["otherPerson.locationIP"] = properties["locationIP"],
         ["otherPerson.email"] = properties["email"],
-        ["otherPerson.speaks"] = properties["speaks"]
+        ["otherPerson.speaks"] = properties["speaks"],
+        ["universities"] = table.concat(studied_list, ", "),
+        ["companies"] = table.concat(worked_list, ", ")
       }
-      table.insert(known, otherPerson)
+      table.insert(results, otherPerson)
   end
-end
 
-sorted = {}
-table.sort(known, function(a,b) return a["distanceFromPerson"] < b["distanceFromPerson"] end)
-
-for i,v in ipairs(known) do
- table.insert(sorted, v)
-end
-table.unpack(sorted, 1, 20)
-
-
-  - name: otherPerson.birthday
-    type: Date
-  - name: otherPerson.creationDate
-    type: DateTime
-  - name: otherPerson.gender
-    type: String
-  - name: otherPerson.browserUsed
-    type: String
-  - name: otherPerson.locationIP
-    type: String
-  - name: otherPerson.email
-    type: \{Long String\}
-  - name: otherPerson.speaks
-    type: \{String\}
-  - name: locationCity.name
-    type: String
-  - name: universities
-    type: \{\<String, 32-bit Integer, String>\}
-    description: "`{<university.name, studyAt.classYear, universityCity.name>}`"
-    category: aggregated
-  - name: companies
-    type: \{\<String, 32-bit Integer, String>\}
-    description: "`{<company.name, workAt.workFrom, companyCountry.name>}`"
-    category: aggregated
+results
