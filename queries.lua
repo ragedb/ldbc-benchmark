@@ -15,6 +15,61 @@ result["creationDate"] = date(result["creationDate"]):fmt("${iso}Z")
 result
 
 
+-- Sample IS 2 with Date format
+local person = NodeGet("Person", "21990232564424")
+local messages = NodeGetNeighborsByIdForDirectionForType(person:getId(), Direction.IN, "HAS_CREATOR")
+table.sort(messages, function(a, b) return a:getProperty("creationDate") > b:getProperty("creationDate") end)
+local smaller = table.move(messages, 1, 10, 1, {})
+
+results = {}
+for i, message in pairs(smaller) do
+  local properties = message:getProperties()
+
+  if (message:getProperty("type") == "post") then
+    local result = {
+      ["messageId"] = properties["id"],
+      ["messageCreationDate"] = date(properties["creationDate"]):fmt("${iso}Z"),
+      ["messageContent"] = properties["content"],
+      ["postId"] = properties["id"],
+      ["originalPosterId"] = person:getProperty("id"),
+      ["originalPosterFirstName"] = person:getProperty("firstName"),
+      ["originalPosterLastName"] = person:getProperty("lastName")
+    }
+
+    if (properties["content"] == '') then
+        result["messageContent"] =  properties["imageFile"]
+    end 
+    table.insert(results, result)
+  else
+    local node_id = message:getId()
+    local hasReply = NodeGetLinksByIdForDirectionForType(node_id, Direction.OUT, "REPLY_OF")  
+    while (#hasReply > 0) do
+      node_id = hasReply[1]:getNodeId()
+      hasReply = NodeGetLinksByIdForDirectionForType(node_id, Direction.OUT, "REPLY_OF")  
+    end
+    local poster = NodeGetNeighborsByIdForDirectionForType(node_id, Direction.OUT, "HAS_CREATOR")[1] 
+    local properties2 = NodePropertiesGetById(node_id)
+    local result = {
+      ["messageId"] = properties["id"],
+      ["messageCreationDate"] = date(properties["creationDate"]):fmt("${iso}Z"),
+      ["messageContent"] = properties["content"],
+      ["postId"] = properties2["id"],
+      ["originalPosterId"] = poster:getProperty("id"),
+      ["originalPosterFirstName"] = poster:getProperty("firstName"),
+      ["originalPosterLastName"] = poster:getProperty("lastName")
+    }
+
+    if (properties["content"] == '') then
+        result["messageContent"] =  properties["imageFile"]
+    end 
+    table.insert(results, result)
+  end
+
+end
+
+results 
+
+
 -- Sample IS 3
 local person = NodeGet("Person", "933")
 local friendships = {}
@@ -176,7 +231,10 @@ sorted
 -- Given a start *Person*, find *Persons* with a given first name (`firstName`) that the 
 -- start *Person* is connected to (excluding start *Person*) by at most 3 steps via the *knows* relationships. 
 -- Return *Persons*, including the distance (1..3), summaries of the *Persons* workplaces and places of study.
+local node_ids = Roar.new()
 local targets = FindNodeIds("Person", "firstName", Operation.EQ, "Chen", 0, 999999)
+node_ids:addIds(targets)
+
 local node_id = NodeGetId("Person", "1129")
 local people = NodeGetLinksByIdForType(node_id, "KNOWS")
 local seen1 = Roar.new()
@@ -192,19 +250,20 @@ end
 seen2:inplace_difference(seen1)
 seen2:remove(node_id)
 
-local people3 = LinksGetLinksForType(seen2:getNodeHalfLinks(), "KNOWS") 
-for i,links2 in pairs(people3) do 
-  seen3:addNodeIds(links2) 
+if(seen2:intersection(node_ids):cardinality() < 20) then
+    local people3 = LinksGetLinksForType(seen2:getNodeHalfLinks(), "KNOWS") 
+    for i,links2 in pairs(people3) do 
+        seen3:addNodeIds(links2) 
+    end
+    seen3:inplace_difference(seen2)
+    seen3:inplace_difference(seen1)
+    seen3:remove(node_id)
 end
-seen3:inplace_difference(seen2)
-seen3:inplace_difference(seen1)
-seen3:remove(node_id)
 
-local node_ids = Roar.new()
-node_ids:addIds(targets)
 seen1:inplace_intersection(node_ids)
 seen2:inplace_intersection(node_ids)
 seen3:inplace_intersection(node_ids)
+
 local known = {}
 local found = {seen1, seen2, seen3}
 
@@ -235,21 +294,22 @@ function sort_on_values(t,...)
 end
 
 sort_on_values(known,"distanceFromPerson","otherPerson.lastName", "otherPerson.id")
-local smaller =  table.move(known, 1, 20, 1, {})
+local smaller = table.move(known, 1, 20, 1, {})
+
 
 local results = {}
 for j, person in pairs(smaller) do
-    
-    local studied = NodeGetRelationshipsForDirectionForType("Person", person["otherPerson.id"], Direction.OUT, "STUDY_AT" )
     local studied_list = {}
+    local worked_list = {} 
+    local studied = NodeGetRelationshipsForDirectionForType("Person", person["otherPerson.id"], Direction.OUT, "STUDY_AT" )
+    local worked = NodeGetRelationshipsForDirectionForType("Person", person["otherPerson.id"], Direction.OUT, "WORK_AT" )
+ 
     for s = 1, #studied do
         table.insert(studied_list, NodePropertyGetById(studied[s]:getEndingNodeId(), "name"))
         table.insert(studied_list, RelationshipPropertyGet(studied[s]:getId(), "classYear"))
     end
     
-    local worked = NodeGetRelationshipsForDirectionForType("Person", person["otherPerson.id"], Direction.OUT, "WORK_AT" )
-    local worked_list = {}
-    for s = 1, #worked do
+   for s = 1, #worked do
           table.insert(worked_list, NodePropertyGetById(worked[s]:getEndingNodeId(), "name"))
           table.insert(worked_list, RelationshipPropertyGet(worked[s]:getId(), "workFrom"))
     end
