@@ -1,8 +1,10 @@
 NodeTypeInsert("Forum")
+NodePropertyTypeAdd("Forum", "id", "integer")
 NodePropertyTypeAdd("Forum", "title", "string")
 NodePropertyTypeAdd("Forum", "creationDate", "double")
 
 NodeTypeInsert("Message")
+NodePropertyTypeAdd("Message", "id", "integer")
 NodePropertyTypeAdd("Message", "creationDate", "double")
 NodePropertyTypeAdd("Message", "locationIP", "string")
 NodePropertyTypeAdd("Message", "browserUsed", "string")
@@ -13,11 +15,13 @@ NodePropertyTypeAdd("Message", "imageFile", "string")
 NodePropertyTypeAdd("Message", "type", "string")
 
 NodeTypeInsert("Organisation")
+NodePropertyTypeAdd("Organisation", "id", "integer")
 NodePropertyTypeAdd("Organisation", "name", "string")
 NodePropertyTypeAdd("Organisation", "url", "string")
 NodePropertyTypeAdd("Organisation", "type", "string")
 
 NodeTypeInsert("Person")
+NodePropertyTypeAdd("Person", "id", "integer")
 NodePropertyTypeAdd("Person", "firstName", "string")
 NodePropertyTypeAdd("Person", "lastName", "string")
 NodePropertyTypeAdd("Person", "gender", "string")
@@ -29,15 +33,18 @@ NodePropertyTypeAdd("Person", "email", "string_list")
 NodePropertyTypeAdd("Person", "speaks", "string_list")
 
 NodeTypeInsert("Place")
+NodePropertyTypeAdd("Place", "id", "integer")
 NodePropertyTypeAdd("Place", "name", "string")
 NodePropertyTypeAdd("Place", "url", "string")
 NodePropertyTypeAdd("Place", "type", "string")
 
 NodeTypeInsert("Tag")
+NodePropertyTypeAdd("Tag", "id", "integer")
 NodePropertyTypeAdd("Tag", "name", "string")
 NodePropertyTypeAdd("Tag", "url", "string")
 
 NodeTypeInsert("TagClass")
+NodePropertyTypeAdd("TagClass", "id", "integer")
 NodePropertyTypeAdd("TagClass", "name", "string")
 NodePropertyTypeAdd("TagClass", "url", "string")
 

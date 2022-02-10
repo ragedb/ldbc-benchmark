@@ -1,45 +1,53 @@
 -- Sample IS 1
 local person = NodeGet("Person", "933")
 local isLocatedIn = NodeGetLinksByIdForDirectionForType(person:getId(), Direction.OUT, "IS_LOCATED_IN")
-result = person:getProperties()
-result["city_id"] = NodeGetKey(isLocatedIn[1]:getNodeId())
+local city_id = NodePropertyGetById(isLocatedIn[1]:getNodeId(), "id")
+local properties = person:getProperties()
+local result = {
+  ["person.firstName"] = properties["firstName"],
+  ["person.lastName"] = properties["lastName"],
+  ["person.birthday"] = properties["birthday"],
+  ["person.locationIP"] = properties["locationIP"],
+  ["person.browserUsed"] = properties["browserUsed"],
+  ["city.id"] = city_id,
+  ["person.gender"] = properties["gender"],
+  ["person.creationDate"] = date(properties["creationDate"]):fmt("${iso}Z")   
+}
 result
 
 
--- Sample IS 1 with Date format
-local person = NodeGet("Person", "933")
-local isLocatedIn = NodeGetLinksByIdForDirectionForType(person:getId(), Direction.OUT, "IS_LOCATED_IN")
-result = person:getProperties()
-result["city_id"] = NodeGetKey(isLocatedIn[1]:getNodeId())
-result["creationDate"] = date(result["creationDate"]):fmt("${iso}Z") 
-result
-
-
--- Sample IS 2 with Date format
+-- Sample IS 2
 local person = NodeGet("Person", "21990232564424")
 local messages = NodeGetNeighborsByIdForDirectionForType(person:getId(), Direction.IN, "HAS_CREATOR")
-table.sort(messages, function(a, b) return a:getProperty("creationDate") > b:getProperty("creationDate") end)
+table.sort(messages, function(a, b) 
+     if a:getProperty("creationDate") > b:getProperty("creationDate") then 
+         return true
+     elseif a:getProperty("creationDate") == b:getProperty("creationDate") then
+        return a:getProperty("id") > b:getProperty("id")
+    end
+    end)
 local smaller = table.move(messages, 1, 10, 1, {})
 
 results = {}
 for i, message in pairs(smaller) do
   local properties = message:getProperties()
 
-  if (message:getProperty("type") == "post") then
-    local result = {
-      ["messageId"] = properties["id"],
-      ["messageCreationDate"] = date(properties["creationDate"]):fmt("${iso}Z"),
-      ["messageContent"] = properties["content"],
-      ["postId"] = properties["id"],
-      ["originalPosterId"] = person:getProperty("id"),
-      ["originalPosterFirstName"] = person:getProperty("firstName"),
-      ["originalPosterLastName"] = person:getProperty("lastName")
-    }
+  local result = {
+    ["message.id"] = properties["id"],
+    ["message.creationDate"] = date(properties["creationDate"]):fmt("${iso}Z")
+  }
 
-    if (properties["content"] == '') then
-        result["messageContent"] =  properties["imageFile"]
-    end 
-    table.insert(results, result)
+  if (properties["content"] == '') then
+    result["message.imageFile"] =  properties["imageFile"]
+  else
+    result["message.content"] = properties["content"]
+  end 
+
+  if (properties["type"] == "post") then
+      result["post.id"] = properties["id"]
+      result["originalPoster.id"] = person:getProperty("id")
+      result["originalPoster.firstName"] = person:getProperty("firstName")
+      result["originalPoster.lastName"] = person:getProperty("lastName")
   else
     local node_id = message:getId()
     local hasReply = NodeGetLinksByIdForDirectionForType(node_id, Direction.OUT, "REPLY_OF")  
@@ -48,116 +56,86 @@ for i, message in pairs(smaller) do
       hasReply = NodeGetLinksByIdForDirectionForType(node_id, Direction.OUT, "REPLY_OF")  
     end
     local poster = NodeGetNeighborsByIdForDirectionForType(node_id, Direction.OUT, "HAS_CREATOR")[1] 
-    local properties2 = NodePropertiesGetById(node_id)
-    local result = {
-      ["messageId"] = properties["id"],
-      ["messageCreationDate"] = date(properties["creationDate"]):fmt("${iso}Z"),
-      ["messageContent"] = properties["content"],
-      ["postId"] = properties2["id"],
-      ["originalPosterId"] = poster:getProperty("id"),
-      ["originalPosterFirstName"] = poster:getProperty("firstName"),
-      ["originalPosterLastName"] = poster:getProperty("lastName")
-    }
-
-    if (properties["content"] == '') then
-        result["messageContent"] =  properties["imageFile"]
-    end 
-    table.insert(results, result)
+    local post_id = NodePropertyGetById(node_id, "id")
+      result["post.id"] = post_id
+      result["originalPoster.id"] = poster:getProperty("id")
+      result["originalPoster.firstName"] = poster:getProperty("firstName")
+      result["originalPoster.lastName"] = poster:getProperty("lastName")
   end
-
+    table.insert(results, result)
 end
 
-results 
+results    
 
 
 -- Sample IS 3
-local person = NodeGet("Person", "933")
-local friendships = {}
-local order = {}
-local knows = NodeGetLinksByIdForType(person:getId(), "KNOWS")
-for i, know in pairs(knows) do
-  creation = RelationshipPropertyGet(know:getRelationshipId(),"creationDate")
-  table.insert(order, creation)
-  friend = NodePropertiesGetById(know:getNodeId())
-  friendship = {
-    ["personId"] = friend["id"],
-    ["firstName"] = friend["firstName"],
-    ["lastName"] = friend["lastName"],   
-    ["friendshipCreationDate"] = creation
-  }
-
-  friendships[creation] = friendship
-end
-
-sorted = {}
-table.sort(order, function(a, b) return a > b end)
-for i,n in pairs(order) do 
-    table.insert(sorted, friendships[n])
-end
-sorted
-
-
--- Sample IS 3 with Date format
 local person = NodeGet("Person", "17592186055119")
 local friendships = {}
-local order = {}
 local knows = NodeGetLinksByIdForType(person:getId(), "KNOWS")
 for i, know in pairs(knows) do
   creation = RelationshipPropertyGet(know:getRelationshipId(),"creationDate")
-  table.insert(order, creation)
   friend = NodePropertiesGetById(know:getNodeId())
   friendship = {
-    ["personId"] = friend["id"],
-    ["firstName"] = friend["firstName"],
-    ["lastName"] = friend["lastName"],   
-    ["friendshipCreationDate"] = date(creation):fmt("${iso}Z") 
+    ["friend.id"] = friend["id"],
+    ["friend.firstName"] = friend["firstName"],
+    ["friend.lastName"] = friend["lastName"],   
+    ["knows.creationDate"] = creation
   }
+  table.insert(friendships, friendship)
+end
 
-  friendships[creation] = friendship
+table.sort(friendships, function(a, b) 
+  if a["knows.creationDate"] > b["knows.creationDate"] then
+      return true
+  end
+  if (a["knows.creationDate"] == b["knows.creationDate"]) then 
+     return (a["friend.id"] < b["friend.id"] )  
+  end
+end)
+
+for i = 1, #friendships do
+  friendships[i]["knows.creationDate"] = date(friendships[i]["knows.creationDate"]):fmt("${iso}Z") 
 end
-table.sort(order, function(a, b) return a > b end)
-sorted = {}
-for i,n in pairs(order) do 
-    table.insert(sorted, friendships[n])
-end
-sorted
+
+friendships
 
  
 
 -- Sample IS 4 - (content)
-local message = NodePropertiesGet("Message", "4947802324992")
-result = {
-  ["messageCreationDate"] = date(message["creationDate"]):fmt("${iso}Z"),
-  ["messageContent"] = message["content"]
+local properties = NodePropertiesGet("Message", "1236950581248")
+local result = {
+  ["message.creationDate"] = date(properties["creationDate"]):fmt("${iso}Z")
 }
 
-if (message["content"] == '') then
-    result["messageContent"] =  message["imageFile"]
-end    
+if (properties["content"] == '') then
+  result["message.imageFile"] =  properties["imageFile"]
+else
+  result["message.content"] = properties["content"]
+end 
 
 result
 
 
 -- Sample IS 4 - (image)
-local message = NodePropertiesGet("Message", "1649267441795")
-result = {
-  ["messageCreationDate"] = date(message["creationDate"]):fmt("${iso}Z"),
-  ["messageContent"] = message["content"]
+local properties = NodePropertiesGet("Message", "1374389534791")
+local result = {
+  ["message.creationDate"] = date(properties["creationDate"]):fmt("${iso}Z")
 }
 
-if (message["content"] == '') then
-    result["messageContent"] =  message["imageFile"]
-end    
+if (properties["content"] == '') then
+  result["message.imageFile"] =  properties["imageFile"]
+else
+  result["message.content"] = properties["content"]
+end 
 
 result
 
 -- Sample IS 5 
 local person = NodeGetNeighborsForDirectionForType("Message", "1236950581248", Direction.OUT, "HAS_CREATOR")[1]
-local properties = person:getProperties()
 local result = {
-  ["personId"] = person:getKey(),
-  ["firstName"] = properties["firstName"],
-  ["lastName"] = properties["lastName"]
+  ["person.id"] = person:getProperty("id"),
+  ["person.firstName"] = person:getProperty("firstName"),
+  ["person.lastName"] = person:getProperty("lastName")
 }
 
 result
@@ -173,15 +151,15 @@ while (#links == 0) do
     links = NodeGetLinksByIdForDirectionForType(node_id , Direction.IN, "CONTAINER_OF")  
 end
 node_id = links[1]:getNodeId()
-local forum = NodeGet(node_id)
+local forum = NodeGetById(node_id)
 local moderator = NodeGetNeighborsByIdForDirectionForType(node_id, Direction.OUT, "HAS_MODERATOR")[1]
 local properties = moderator:getProperties()
 local result = {
-  ["forumId"] = forum:getKey(),
-  ["forumTitle"] = forum:getProperties()["title"],
-  ["moderatorId"] = moderator:getKey(),
-  ["moderatorFirstName"] = properties["firstName"],
-  ["moderatorLastName"] = properties["lastName"]
+  ["forum.id"] = forum:getProperty("id"),
+  ["forum.title"] = forum:getProperty("title"),
+  ["moderator.id"] = properties["id"],
+  ["moderator.firstName"] = properties["firstName"],
+  ["moderator.lastName"] = properties["lastName"]
 }
 
 result
@@ -197,35 +175,37 @@ for i, know in pairs (knows) do
   table.insert(knows_ids, know:getNodeId())
 end
 
-comments = {}
-order = {}
+local comments = {}
 local replies = NodeGetNeighborsByIdForDirectionForType(message_node_id, Direction.IN, "REPLY_OF")
 for i, reply in pairs (replies) do
-  creation = reply:getProperties()["creationDate"]
-  table.insert(order, creation)
   local replyAuthor = NodeGetNeighborsByIdForDirectionForType(reply:getId(), Direction.OUT, "HAS_CREATOR")[1]
-  local known = false;
-  if(knows_ids[replyAuthor:getId()]) then known = true end
-  comment = {
-    ["replyAuthorId"] = replyAuthor:getKey(),
-    ["replyAuthorFirstName"] = replyAuthor:getProperties()["firstName"],
-    ["replyAuthorLastName"] = replyAuthor:getProperties()["lastName"],
-    ["replyAuthorKnowsOriginalMessageAuthor"] = known,
-    ["commentId"] = reply:getKey(),
-    ["commentContent"] = reply["content"],
-    ["commentCreationDate"] = date(creation):fmt("${iso}Z")
+  local properties = replyAuthor:getProperties()
+  local comment = {
+    ["replyAuthor.id"] = properties["id"],
+    ["replyAuthor.firstName"] = properties["firstName"],
+    ["replyAuthor.lastName"] = properties["lastName"],
+    ["knows"] = not knows_ids[replyAuthor:getId()] == nil,
+    ["comment.id"] = reply:getProperty("id"),
+    ["comment.content"] = reply:getProperty("content"),
+    ["comment.creationDate"] = reply:getProperties()["creationDate"]
   }
-  comments[creation] = comment
-
+  table.insert(comments, comment)
 end
 
-table.sort(order, function(a, b) return a > b end)
-sorted = {}
-for i,n in pairs(order) do 
-    table.insert(sorted, comments[n])
-end
-sorted
+table.sort(comments, function(a, b) 
+  if a["comment.creationDate"] > b["comment.creationDate"] then
+      return true
+  end
+  if (a["comment.creationDate"] == b["comment.creationDate"]) then 
+     return (a["replyAuthor.id"] < b["replyAuthor.id"] )  
+  end
+end)
 
+for i = 1, #comments do
+  comments[i]["comment.creationDate"] = date(comments[i]["comment.creationDate"]):fmt("${iso}Z") 
+end
+
+comments
 
 -- Sample IC 1
 -- Given a start *Person*, find *Persons* with a given first name (`firstName`) that the 

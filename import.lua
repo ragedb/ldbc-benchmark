@@ -1,5 +1,5 @@
 for i, person in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/person_0_0.csv", "|") do
-   NodeAdd("Person", person.id, "{\"firstName\":".."\""..person.firstName.."\",
+   NodeAdd("Person", person.id, "{\"id\":"..person.id.."\"firstName\":".."\""..person.firstName.."\",
    \"lastName\":".."\""..person.lastName.."\",
    \"gender\":".."\""..person.gender.."\",
    \"birthday\":".."\""..person.birthday.."\",
@@ -11,32 +11,32 @@ end
 local type = ""
 for i, place in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/place_0_0.csv", "|") do
    type = place.type:sub(1,1):upper()..place.type:sub(2)
-   NodeAdd("Place", place.id, "{\"name\":".."\""..place.name.."\",
+   NodeAdd("Place", place.id, "{\"id\":"..place.id.."\"name\":".."\""..place.name.."\",
    \"url\":".."\""..place.url.."\",
    \"type\":".."\""..type.."\"}")
 end
 
 for i, organisation in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/organisation_0_0.csv", "|") do
    type = organisation.type:sub(1,1):upper()..organisation.type:sub(2)
-   NodeAdd("Organisation", organisation.id, "{\"name\":".."\""..organisation.name.."\",
+   NodeAdd("Organisation", organisation.id, "{\"id\":"..organisation.id.."\"name\":".."\""..organisation.name.."\",
    \"url\":".."\""..organisation.url.."\",
    \"type\":".."\""..type.."\"}")
 end
 
 for i, tag in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/tag_0_0.csv", "|") do
-   NodeAdd("Tag", tag.id, "{\"name\":".."\""..tag.name.."\",\"url\":".."\""..tag.url.."\"}")
+   NodeAdd("Tag", tag.id, "{\"id\":"..tag.id.."\"name\":".."\""..tag.name.."\",\"url\":".."\""..tag.url.."\"}")
 end
 
 for i, tagclass in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/tagclass_0_0.csv", "|") do
-   NodeAdd("TagClass", tagclass.id, "{\"name\":".."\""..tagclass.name.."\",\"url\":".."\""..tagclass.url.."\"}")
+   NodeAdd("TagClass", tagclass.id, "{\"id\":"..tagclass.id.."\"name\":".."\""..tagclass.name.."\",\"url\":".."\""..tagclass.url.."\"}")
 end
 
 for i, forum in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/forum_0_0.csv", "|") do
-   NodeAdd("Forum", forum.id, "{\"title\":".."\""..forum.title.."\",\"creationDate\":"..date(forum.creationDate):todouble().."}")
+   NodeAdd("Forum", forum.id, "{\"id\":"..forum.id.."\"title\":".."\""..forum.title.."\",\"creationDate\":"..date(forum.creationDate):todouble().."}")
 end
 
 for i, message in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/post_0_0.csv", "|") do
-   NodeAdd("Message", message.id, "{\"imageFile\":".."\""..message.imageFile.."\",
+   NodeAdd("Message", message.id, "{\"id\":"..message.id.."\"imageFile\":".."\""..message.imageFile.."\",
     \"locationIP\":".."\""..message.locationIP.."\",
     \"browserUsed\":".."\""..message.browserUsed.."\",
     \"language\":".."\""..message.language.."\",
@@ -45,7 +45,7 @@ for i, message in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/post_0_0.
 end
 
 for i, message in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/comment_0_0.csv", "|") do
-   NodeAdd("Message", message.id, "{\"locationIP\":".."\""..message.locationIP.."\",
+   NodeAdd("Message", message.id, "{\"id\":"..message.id.."\"locationIP\":".."\""..message.locationIP.."\",
     \"browserUsed\":".."\""..message.browserUsed.."\",
     \"content\":".."\""..message.content.."\",
     \"length\":"..message.length..",\"creationDate\":"..date(message.creationDate):todouble()..",\"type\":\"comment\"}")
