@@ -1,15 +1,13 @@
 -- Sample IS 1
-local person = NodeGet("Person", "933")
-local isLocatedIn = NodeGetLinksByIdForDirectionForType(person:getId(), Direction.OUT, "IS_LOCATED_IN")
-local city_id = NodePropertyGetById(isLocatedIn[1]:getNodeId(), "id")
-local properties = person:getProperties()
+local properties = NodePropertiesGet("Person", "933")
+local city = NodeGetNeighborsForDirectionForType("Person", "933", Direction.OUT, "IS_LOCATED_IN")[1]
 local result = {
   ["person.firstName"] = properties["firstName"],
   ["person.lastName"] = properties["lastName"],
   ["person.birthday"] = properties["birthday"],
   ["person.locationIP"] = properties["locationIP"],
   ["person.browserUsed"] = properties["browserUsed"],
-  ["city.id"] = city_id,
+  ["city.id"] = city:getProperty("id"),
   ["person.gender"] = properties["gender"],
   ["person.creationDate"] = date(properties["creationDate"]):fmt("${iso}Z")   
 }
@@ -69,9 +67,8 @@ results
 
 
 -- Sample IS 3
-local person = NodeGet("Person", "17592186055119")
+local knows = NodeGetLinksForType("Person", "17592186055119", "KNOWS")
 local friendships = {}
-local knows = NodeGetLinksByIdForType(person:getId(), "KNOWS")
 for i, know in pairs(knows) do
   creation = RelationshipPropertyGet(know:getRelationshipId(),"creationDate")
   friend = NodePropertiesGetById(know:getNodeId())
@@ -102,7 +99,7 @@ friendships
  
 
 -- Sample IS 4 - (content)
-local properties = NodePropertiesGet("Message", "1236950581248")
+local properties = NodePropertiesGet("Message", "4947802324992")
 local result = {
   ["message.creationDate"] = date(properties["creationDate"]):fmt("${iso}Z")
 }
@@ -117,7 +114,7 @@ result
 
 
 -- Sample IS 4 - (image)
-local properties = NodePropertiesGet("Message", "1374389534791")
+local properties = NodePropertiesGet("Message", "1649267441795")
 local result = {
   ["message.creationDate"] = date(properties["creationDate"]):fmt("${iso}Z")
 }
@@ -131,7 +128,7 @@ end
 result
 
 -- Sample IS 5 
-local person = NodeGetNeighborsForDirectionForType("Message", "1236950581248", Direction.OUT, "HAS_CREATOR")[1]
+local person = NodeGetNeighborsForDirectionForType("Message", "4947802324992", Direction.OUT, "HAS_CREATOR")[1]
 local result = {
   ["person.id"] = person:getProperty("id"),
   ["person.firstName"] = person:getProperty("firstName"),
@@ -142,7 +139,7 @@ result
 
 
 -- Sample IS 6
-local message_id = "2061584302091"
+local message_id = "8246337208331"
 local node_id = NodeGetId("Message", message_id)
 local links = NodeGetLinksByIdForDirectionForType(node_id, Direction.IN, "CONTAINER_OF")
 while (#links == 0) do
