@@ -1,5 +1,5 @@
 -- Sample IS 1
-local properties = NodePropertiesGet("Person", "933")
+local properties = NodeGetProperties("Person", "933")
 local city = NodeGetNeighborsForDirectionForType("Person", "933", Direction.OUT, "IS_LOCATED_IN")[1]
 local result = {
   ["person.firstName"] = properties["firstName"],
@@ -54,7 +54,7 @@ for i, message in pairs(smaller) do
       hasReply = NodeGetLinksByIdForDirectionForType(node_id, Direction.OUT, "REPLY_OF")  
     end
     local poster = NodeGetNeighborsByIdForDirectionForType(node_id, Direction.OUT, "HAS_CREATOR")[1] 
-    local post_id = NodePropertyGetById(node_id, "id")
+    local post_id = NodeGetPropertyById(node_id, "id")
       result["post.id"] = post_id
       result["originalPoster.id"] = poster:getProperty("id")
       result["originalPoster.firstName"] = poster:getProperty("firstName")
@@ -70,8 +70,8 @@ results
 local knows = NodeGetLinksForType("Person", "17592186055119", "KNOWS")
 local friendships = {}
 for i, know in pairs(knows) do
-  creation = RelationshipPropertyGet(know:getRelationshipId(),"creationDate")
-  friend = NodePropertiesGetById(know:getNodeId())
+  creation = RelationshipGetProperty(know:getRelationshipId(),"creationDate")
+  friend = NodeGetPropertiesById(know:getNodeId())
   friendship = {
     ["friend.id"] = friend["id"],
     ["friend.firstName"] = friend["firstName"],
@@ -99,7 +99,7 @@ friendships
  
 
 -- Sample IS 4 - (content)
-local properties = NodePropertiesGet("Message", "4947802324992")
+local properties = NodeGetProperties("Message", "4947802324992")
 local result = {
   ["message.creationDate"] = date(properties["creationDate"]):fmt("${iso}Z")
 }
@@ -114,7 +114,7 @@ result
 
 
 -- Sample IS 4 - (image)
-local properties = NodePropertiesGet("Message", "1649267441795")
+local properties = NodeGetProperties("Message", "1649267441795")
 local result = {
   ["message.creationDate"] = date(properties["creationDate"]):fmt("${iso}Z")
 }
@@ -204,7 +204,12 @@ end
 
 comments
 
--- Sample IC 1
+
+
+-- Add a Filter method to just see if the node ids found have the first name equal to Chen 
+-- instead of looking at all of them
+
+-- Sample IC 1 - Variation find fist
 -- Given a start *Person*, find *Persons* with a given first name (`firstName`) that the 
 -- start *Person* is connected to (excluding start *Person*) by at most 3 steps via the *knows* relationships. 
 -- Return *Persons*, including the distance (1..3), summaries of the *Persons* workplaces and places of study.
@@ -247,11 +252,11 @@ local found = {seen1, seen2, seen3}
 for i = 1, #found do
   if (found[i]:cardinality() > 0) then
     local lastNames = NodesGetProperty(found[i]:getIds(), "lastName")
-    local keys = NodesGetKey(found[i]:getIds())
+    local ids = NodesGetProperty(found[i]:getIds(), "id")
 
     for j = 1, found[i]:cardinality() do
       otherPerson = {
-        ["otherPerson.id"] = keys[j],
+        ["otherPerson.id"] = ids[j],
         ["otherPerson.lastName"] = lastNames[j],
         ["distanceFromPerson"] = i
       }
@@ -282,16 +287,16 @@ for j, person in pairs(smaller) do
     local worked = NodeGetRelationshipsForDirectionForType("Person", person["otherPerson.id"], Direction.OUT, "WORK_AT" )
  
     for s = 1, #studied do
-        table.insert(studied_list, NodePropertyGetById(studied[s]:getEndingNodeId(), "name"))
-        table.insert(studied_list, RelationshipPropertyGet(studied[s]:getId(), "classYear"))
+        table.insert(studied_list, NodeGetPropertyById(studied[s]:getEndingNodeId(), "name"))
+        table.insert(studied_list, RelationshipGetProperty(studied[s]:getId(), "classYear"))
     end
     
    for s = 1, #worked do
-          table.insert(worked_list, NodePropertyGetById(worked[s]:getEndingNodeId(), "name"))
-          table.insert(worked_list, RelationshipPropertyGet(worked[s]:getId(), "workFrom"))
+          table.insert(worked_list, NodeGetPropertyById(worked[s]:getEndingNodeId(), "name"))
+          table.insert(worked_list, RelationshipGetProperty(worked[s]:getId(), "workFrom"))
     end
   
-    local properties = NodePropertiesGet("Person", person["otherPerson.id"] )
+    local properties = NodeGetProperties("Person", person["otherPerson.id"] )
       otherPerson = {
         ["otherPerson.id"] = person["otherPerson.id"],
         ["otherPerson.lastName"] = properties["lastName"],
@@ -308,5 +313,110 @@ for j, person in pairs(smaller) do
       }
       table.insert(results, otherPerson)
   end
+
+results
+
+
+-- Sample IC 1 - Variation filter as we go
+-- Given a start *Person*, find *Persons* with a given first name (`firstName`) that the 
+-- start *Person* is connected to (excluding start *Person*) by at most 3 steps via the *knows* relationships. 
+-- Return *Persons*, including the distance (1..3), summaries of the *Persons* workplaces and places of study.
+local node_id = NodeGetId("Person", "1129")
+local people = NodeGetLinksByIdForType(node_id, "KNOWS")
+local seen1 = Roar.new()
+
+
+seen1:addNodeIds(people)
+local named1 = FilterNodes(seen1:getIds(), "Person", "firstName", Operation.EQ, "Chen")
+local named2 = {}
+local named3 = {}
+
+if(#named1 < 20) then 
+  local seen2 = Roar.new()
+
+  local people2 = LinksGetLinksForType(people, "KNOWS")
+  for i,links in pairs(people2) do 
+    seen2:addNodeIds(links)
+  end  
+  seen2:inplace_difference(seen1)
+  seen2:remove(node_id)
+
+  named2 = FilterNodes(seen2:getIds(), "Person", "firstName", Operation.EQ, "Chen")
+
+  if((#named1 + #named2) < 20) then 
+
+    local seen3 = Roar.new()
+    local people3 = LinksGetLinksForType(seen2:getNodeHalfLinks(), "KNOWS") 
+    for i,links2 in pairs(people3) do 
+        seen3:addNodeIds(links2) 
+    end
+    seen3:inplace_difference(seen2)
+    seen3:inplace_difference(seen1)
+    seen3:remove(node_id)
+
+    named3 = FilterNodes(seen3:getIds(), "Person", "firstName", Operation.EQ, "Chen")
+  end
+end
+
+local known = {}
+local found = {named1, named2, named3}
+
+for i = 1, #found do
+  if (#found[i] > 0) then
+    for j, person in pairs(found[i]) do
+      local properties = person:getProperties()
+      otherPerson = {
+        ["otherPerson.id"] = properties["id"],
+        ["otherPerson.lastName"] = properties["lastName"],
+        ["otherPerson.birthday"] = properties["birthday"],
+        ["otherPerson.creationDate"] = properties["creationDate"],
+        ["otherPerson.gender"] = properties["gender"],
+        ["otherPerson.browserUsed"] = properties["browserUsed"],
+        ["otherPerson.locationIP"] = properties["locationIP"],
+        ["otherPerson.email"] = properties["email"],
+        ["otherPerson.speaks"] = properties["speaks"],
+        ["distanceFromPerson"] = i
+      }
+      table.insert(known, otherPerson)
+    end
+  end
+end
+
+function sort_on_values(t,...)
+  local a = {...}
+  table.sort(t, function (u,v)
+    for i = 1, #a do
+      if u[a[i]] > v[a[i]] then return false end
+      if u[a[i]] < v[a[i]] then return true end
+    end
+  end)
+end
+
+sort_on_values(known,"distanceFromPerson","otherPerson.lastName", "otherPerson.id")
+local smaller = table.move(known, 1, 20, 1, {})
+
+
+local results = {}
+for j, person in pairs(smaller) do
+    local studied_list = {}
+    local worked_list = {} 
+    local studied = NodeGetRelationshipsForDirectionForType("Person", person["otherPerson.id"], Direction.OUT, "STUDY_AT" )
+    local worked = NodeGetRelationshipsForDirectionForType("Person", person["otherPerson.id"], Direction.OUT, "WORK_AT" )
+ 
+    for s = 1, #studied do
+        table.insert(studied_list, NodeGetPropertyById(studied[s]:getEndingNodeId(), "name"))
+        table.insert(studied_list, RelationshipGetProperty(studied[s]:getId(), "classYear"))
+    end
+    
+   for s = 1, #worked do
+      table.insert(worked_list, NodeGetPropertyById(worked[s]:getEndingNodeId(), "name"))
+      table.insert(worked_list, RelationshipGetProperty(worked[s]:getId(), "workFrom"))
+   end
+  
+  person["universities"] = table.concat(studied_list, ", ")
+  person["companies"] = table.concat(worked_list, ", ")
+
+  table.insert(results, person)
+end
 
 results

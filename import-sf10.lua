@@ -153,7 +153,7 @@ for i, person in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/person_em
     if (person_id == 0) then person_id = next_id end
     
     if (next_id ~= person_id) then
-        NodePropertySet("Person", person_id, "email", emails)
+        NodeSetProperty("Person", person_id, "email", emails)
         count = #emails
         for e=0, count do emails[e]=nil end
         person_id = next_id
@@ -161,7 +161,7 @@ for i, person in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/person_em
       table.insert(emails, person['email'])
     end
 end
-NodePropertySet("Person", next_id, "email", emails)
+NodeSetProperty("Person", next_id, "email", emails)
 
 person_id = 0
 next_id = 0
@@ -171,7 +171,7 @@ for i, person in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/person_sp
     if (person_id == 0) then person_id = next_id end
     
     if (next_id ~= person_id) then
-        NodePropertySet("Person", person_id, "speaks", languages)
+        NodeSetProperty("Person", person_id, "speaks", languages)
         count = #languages
         for e=0, count do languages[e]=nil end
         person_id = next_id
@@ -179,7 +179,7 @@ for i, person in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/person_sp
       table.insert(languages, person['language'])
     end
 end
-NodePropertySet("Person", next_id, "speaks", languages)
+NodeSetProperty("Person", next_id, "speaks", languages)
 
 
 nodes = {
