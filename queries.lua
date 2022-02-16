@@ -302,7 +302,7 @@ for j, person in pairs(smaller) do
         ["otherPerson.lastName"] = properties["lastName"],
         ["distanceFromPerson"] = person["distanceFromPerson"],
         ["otherPerson.birthday"] = properties["birthday"],
-        ["otherPerson.creationDate"] = properties["creationDate"],
+        ["otherPerson.creationDate"] = date(properties["creationDate"]):fmt("${iso}Z"),
         ["otherPerson.gender"] = properties["gender"],
         ["otherPerson.browserUsed"] = properties["browserUsed"],
         ["otherPerson.locationIP"] = properties["locationIP"],
@@ -415,7 +415,7 @@ for j, person in pairs(smaller) do
   
   person["universities"] = table.concat(studied_list, ", ")
   person["companies"] = table.concat(worked_list, ", ")
-
+  person["otherPerson.creationDate"] = date(person["otherPerson.creationDate"]):fmt("${iso}Z")
   table.insert(results, person)
 end
 
