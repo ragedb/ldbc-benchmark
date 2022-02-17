@@ -420,3 +420,134 @@ for j, person in pairs(smaller) do
 end
 
 results
+
+-- Sample IC 1 - Variation bi-directional
+-- Given a start *Person*, find *Persons* with a given first name (`firstName`) that the 
+-- start *Person* is connected to (excluding start *Person*) by at most 3 steps via the *knows* relationships. 
+-- Return *Persons*, including the distance (1..3), summaries of the *Persons* workplaces and places of study.
+local target_ids = Roar.new()
+local targets = FindNodeIds("Person", "firstName", Operation.EQ, "Carmen", 0, 999999)
+target_ids:addIds(targets)
+table.sort(targets)
+local target_knows = LinksGetLinksForType(target_ids:getNodeHalfLinks(), "KNOWS") 
+local target_knows_ids = Roar.new()
+
+local backwards = {}
+
+for i,links in pairs(target_knows) do 
+  target_knows_ids:addNodeIds(links)
+  local neighbors = {}
+  for j, neighbor in pairs(links) do
+      table.insert(neighbors, neighbor:getNodeId())
+  end
+  table.insert(backwards, neighbors)
+end  
+
+local forwards = {}
+for i, id in pairs(target_knows_ids:getIds()) do
+  forwards[tostring(id)] = {}
+end
+
+for i, ids in pairs(backwards) do
+    for j, neigh in pairs(ids) do
+    table.insert(forwards[tostring(neigh)], targets[i])
+    end
+end
+
+local node_id = NodeGetId("Person", "30786325583618")
+local people = NodeGetLinksByIdForType(node_id, "KNOWS")
+local seen1 = Roar.new()
+local seen2 = Roar.new()
+local near2 = Roar.new()
+local seen3 = Roar.new()
+
+seen1:addNodeIds(people)
+
+local people2 = LinksGetLinksForType(people, "KNOWS")
+for i,links in pairs(people2) do 
+  seen2:addNodeIds(links)
+end  
+
+seen2:inplace_difference(seen1)
+seen2:remove(node_id)
+near2:inplace_union(seen2)
+
+seen1:inplace_intersection(target_ids)
+seen2:inplace_intersection(target_ids)
+near2:inplace_intersection(target_knows_ids)
+
+for i, id in pairs(near2:getIds()) do
+   seen3:addIds(forwards[tostring(id)])
+end  
+
+local known = {}
+local found = {seen1, seen2, seen3}
+
+for i = 1, #found do
+  if (found[i]:cardinality() > 0) then
+    local seen_ids = found[i]:getIds()
+    local lastNames = NodesGetProperty(seen_ids, "lastName")
+    local ids = NodesGetProperty(seen_ids, "id")
+
+    for j = 1, found[i]:cardinality() do
+      otherPerson = {
+        ["otherPerson.id"] = ids[j],
+        ["otherPerson.lastName"] = lastNames[j],
+        ["distanceFromPerson"] = i
+      }
+      table.insert(known, otherPerson)
+    end
+  end
+end
+
+
+function sort_on_values(t,...)
+  local a = {...}
+  table.sort(t, function (u,v)
+    for i = 1, #a do
+      if u[a[i]] > v[a[i]] then return false end
+      if u[a[i]] < v[a[i]] then return true end
+    end
+  end)
+end
+
+sort_on_values(known,"distanceFromPerson","otherPerson.lastName", "otherPerson.id")
+local smaller = table.move(known, 1, 20, 1, {})
+
+
+local results = {}
+for j, person in pairs(smaller) do
+    local studied_list = {}
+    local worked_list = {} 
+    local studied = NodeGetRelationshipsForDirectionForType("Person", tostring(person["otherPerson.id"]), Direction.OUT, "STUDY_AT" )
+    local worked = NodeGetRelationshipsForDirectionForType("Person", tostring(person["otherPerson.id"]), Direction.OUT, "WORK_AT" )
+ 
+    for s = 1, #studied do
+        table.insert(studied_list, NodeGetPropertyById(studied[s]:getEndingNodeId(), "name"))
+        table.insert(studied_list, RelationshipGetProperty(studied[s]:getId(), "classYear"))
+    end
+    
+   for s = 1, #worked do
+          table.insert(worked_list, NodeGetPropertyById(worked[s]:getEndingNodeId(), "name"))
+          table.insert(worked_list, RelationshipGetProperty(worked[s]:getId(), "workFrom"))
+    end
+  
+    local properties = NodeGetProperties("Person", tostring(person["otherPerson.id"]) )
+      otherPerson = {
+        ["otherPerson.id"] = person["otherPerson.id"],
+        ["otherPerson.lastName"] = properties["lastName"],
+        ["distanceFromPerson"] = person["distanceFromPerson"],
+        ["otherPerson.birthday"] = properties["birthday"],
+        ["otherPerson.creationDate"] = date(properties["creationDate"]):fmt("${iso}Z"),
+        ["otherPerson.gender"] = properties["gender"],
+        ["otherPerson.browserUsed"] = properties["browserUsed"],
+        ["otherPerson.locationIP"] = properties["locationIP"],
+        ["otherPerson.email"] = properties["email"],
+        ["otherPerson.speaks"] = properties["speaks"],
+        ["universities"] = table.concat(studied_list, ", "),
+        ["companies"] = table.concat(worked_list, ", ")
+      }
+      table.insert(results, otherPerson)
+  end
+
+results
