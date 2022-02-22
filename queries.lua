@@ -1,6 +1,6 @@
 -- Sample IS 1
 local properties = NodeGetProperties("Person", "933")
-local city = NodeGetNeighborsForDirectionForType("Person", "933", Direction.OUT, "IS_LOCATED_IN")[1]
+local city = NodeGetNeighbors("Person", "933", Direction.OUT, "IS_LOCATED_IN")[1]
 local result = {
   ["person.firstName"] = properties["firstName"],
   ["person.lastName"] = properties["lastName"],
@@ -16,7 +16,7 @@ result
 
 -- Sample IS 2
 local person = NodeGet("Person", "21990232564424")
-local messages = NodeGetNeighborsByIdForDirectionForType(person:getId(), Direction.IN, "HAS_CREATOR")
+local messages = NodeGetNeighbors(person:getId(), Direction.IN, "HAS_CREATOR")
 table.sort(messages, function(a, b) 
      if a:getProperty("creationDate") > b:getProperty("creationDate") then 
          return true
@@ -48,13 +48,13 @@ for i, message in pairs(smaller) do
       result["originalPoster.lastName"] = person:getProperty("lastName")
   else
     local node_id = message:getId()
-    local hasReply = NodeGetLinksByIdForDirectionForType(node_id, Direction.OUT, "REPLY_OF")  
+    local hasReply = NodeGetLinks(node_id, Direction.OUT, "REPLY_OF")  
     while (#hasReply > 0) do
       node_id = hasReply[1]:getNodeId()
-      hasReply = NodeGetLinksByIdForDirectionForType(node_id, Direction.OUT, "REPLY_OF")  
+      hasReply = NodeGetLinks(node_id, Direction.OUT, "REPLY_OF")  
     end
-    local poster = NodeGetNeighborsByIdForDirectionForType(node_id, Direction.OUT, "HAS_CREATOR")[1] 
-    local post_id = NodeGetPropertyById(node_id, "id")
+    local poster = NodeGetNeighbors(node_id, Direction.OUT, "HAS_CREATOR")[1] 
+    local post_id = NodeGetProperty(node_id, "id")
       result["post.id"] = post_id
       result["originalPoster.id"] = poster:getProperty("id")
       result["originalPoster.firstName"] = poster:getProperty("firstName")
@@ -64,14 +64,15 @@ for i, message in pairs(smaller) do
 end
 
 results    
+  
 
 
 -- Sample IS 3
-local knows = NodeGetLinksForType("Person", "17592186055119", "KNOWS")
+local knows = NodeGetLinks("Person", "17592186055119", "KNOWS")
 local friendships = {}
 for i, know in pairs(knows) do
   creation = RelationshipGetProperty(know:getRelationshipId(),"creationDate")
-  friend = NodeGetPropertiesById(know:getNodeId())
+  friend = NodeGetProperties(know:getNodeId())
   friendship = {
     ["friend.id"] = friend["id"],
     ["friend.firstName"] = friend["firstName"],
@@ -128,7 +129,7 @@ end
 result
 
 -- Sample IS 5 
-local person = NodeGetNeighborsForDirectionForType("Message", "4947802324992", Direction.OUT, "HAS_CREATOR")[1]
+local person = NodeGetNeighbors("Message", "4947802324992", Direction.OUT, "HAS_CREATOR")[1]
 local result = {
   ["person.id"] = person:getProperty("id"),
   ["person.firstName"] = person:getProperty("firstName"),
@@ -141,15 +142,15 @@ result
 -- Sample IS 6
 local message_id = "8246337208331"
 local node_id = NodeGetId("Message", message_id)
-local links = NodeGetLinksByIdForDirectionForType(node_id, Direction.IN, "CONTAINER_OF")
+local links = NodeGetLinks(node_id, Direction.IN, "CONTAINER_OF")
 while (#links == 0) do
-    links = NodeGetLinksByIdForDirectionForType(node_id, Direction.OUT, "REPLY_OF")
+    links = NodeGetLinks(node_id, Direction.OUT, "REPLY_OF")
     node_id = links[1]:getNodeId()
-    links = NodeGetLinksByIdForDirectionForType(node_id , Direction.IN, "CONTAINER_OF")  
+    links = NodeGetLinks(node_id , Direction.IN, "CONTAINER_OF")  
 end
 node_id = links[1]:getNodeId()
-local forum = NodeGetById(node_id)
-local moderator = NodeGetNeighborsByIdForDirectionForType(node_id, Direction.OUT, "HAS_MODERATOR")[1]
+local forum = NodeGet(node_id)
+local moderator = NodeGetNeighbors(node_id, Direction.OUT, "HAS_MODERATOR")[1]
 local properties = moderator:getProperties()
 local result = {
   ["forum.id"] = forum:getProperty("id"),
@@ -163,19 +164,19 @@ result
 
 
 -- Sample IS 7
-local message_id = "1236950581248"
+local message_id = "8246337208329"
 local message_node_id = NodeGetId("Message", message_id)
-local author = NodeGetNeighborsByIdForDirectionForType(message_node_id, Direction.OUT, "HAS_CREATOR")[1]
-local knows = NodeGetLinksByIdForType(author:getId(), "KNOWS")
+local author = NodeGetNeighbors(message_node_id, Direction.OUT, "HAS_CREATOR")[1]
+local knows = NodeGetLinks(author:getId(), "KNOWS")
 local knows_ids = {}
 for i, know in pairs (knows) do
   table.insert(knows_ids, know:getNodeId())
 end
 
 local comments = {}
-local replies = NodeGetNeighborsByIdForDirectionForType(message_node_id, Direction.IN, "REPLY_OF")
+local replies = NodeGetNeighbors(message_node_id, Direction.IN, "REPLY_OF")
 for i, reply in pairs (replies) do
-  local replyAuthor = NodeGetNeighborsByIdForDirectionForType(reply:getId(), Direction.OUT, "HAS_CREATOR")[1]
+  local replyAuthor = NodeGetNeighbors(reply:getId(), Direction.OUT, "HAS_CREATOR")[1]
   local properties = replyAuthor:getProperties()
   local comment = {
     ["replyAuthor.id"] = properties["id"],
@@ -218,14 +219,14 @@ local targets = FindNodeIds("Person", "firstName", Operation.EQ, "Chen", 0, 9999
 node_ids:addIds(targets)
 
 local node_id = NodeGetId("Person", "1129")
-local people = NodeGetLinksByIdForType(node_id, "KNOWS")
+local people = NodeGetLinks(node_id, "KNOWS")
 local seen1 = Roar.new()
 local seen2 = Roar.new()
 local seen3 = Roar.new()
 
 seen1:addNodeIds(people)
 
-local people2 = LinksGetLinksForType(people, "KNOWS")
+local people2 = LinksGetLinks(people, "KNOWS")
 for i,links in pairs(people2) do 
   seen2:addNodeIds(links)
 end  
@@ -233,7 +234,7 @@ seen2:inplace_difference(seen1)
 seen2:remove(node_id)
 
 if(seen2:intersection(node_ids):cardinality() < 20) then
-    local people3 = LinksGetLinksForType(seen2:getNodeHalfLinks(), "KNOWS") 
+    local people3 = LinksGetLinks(seen2:getNodeHalfLinks(), "KNOWS") 
     for i,links2 in pairs(people3) do 
         seen3:addNodeIds(links2) 
     end
@@ -283,20 +284,20 @@ local results = {}
 for j, person in pairs(smaller) do
     local studied_list = {}
     local worked_list = {} 
-    local studied = NodeGetRelationshipsForDirectionForType("Person", person["otherPerson.id"], Direction.OUT, "STUDY_AT" )
-    local worked = NodeGetRelationshipsForDirectionForType("Person", person["otherPerson.id"], Direction.OUT, "WORK_AT" )
+    local studied = NodeGetRelationships("Person", tostring(person["otherPerson.id"]), Direction.OUT, "STUDY_AT" )
+    local worked = NodeGetRelationships("Person", tostring(person["otherPerson.id"]), Direction.OUT, "WORK_AT" )
  
     for s = 1, #studied do
-        table.insert(studied_list, NodeGetPropertyById(studied[s]:getEndingNodeId(), "name"))
+        table.insert(studied_list, NodeGetProperty(studied[s]:getEndingNodeId(), "name"))
         table.insert(studied_list, RelationshipGetProperty(studied[s]:getId(), "classYear"))
     end
     
    for s = 1, #worked do
-          table.insert(worked_list, NodeGetPropertyById(worked[s]:getEndingNodeId(), "name"))
+          table.insert(worked_list, NodeGetProperty(worked[s]:getEndingNodeId(), "name"))
           table.insert(worked_list, RelationshipGetProperty(worked[s]:getId(), "workFrom"))
     end
   
-    local properties = NodeGetProperties("Person", person["otherPerson.id"] )
+    local properties = NodeGetProperties("Person", tostring(person["otherPerson.id"]) )
       otherPerson = {
         ["otherPerson.id"] = person["otherPerson.id"],
         ["otherPerson.lastName"] = properties["lastName"],
@@ -322,7 +323,7 @@ results
 -- start *Person* is connected to (excluding start *Person*) by at most 3 steps via the *knows* relationships. 
 -- Return *Persons*, including the distance (1..3), summaries of the *Persons* workplaces and places of study.
 local node_id = NodeGetId("Person", "1129")
-local people = NodeGetLinksByIdForType(node_id, "KNOWS")
+local people = NodeGetLinks(node_id, "KNOWS")
 local seen1 = Roar.new()
 
 
@@ -334,7 +335,7 @@ local named3 = {}
 if(#named1 < 20) then 
   local seen2 = Roar.new()
 
-  local people2 = LinksGetLinksForType(people, "KNOWS")
+  local people2 = LinksGetLinks(people, "KNOWS")
   for i,links in pairs(people2) do 
     seen2:addNodeIds(links)
   end  
@@ -346,7 +347,7 @@ if(#named1 < 20) then
   if((#named1 + #named2) < 20) then 
 
     local seen3 = Roar.new()
-    local people3 = LinksGetLinksForType(seen2:getNodeHalfLinks(), "KNOWS") 
+    local people3 = LinksGetLinks(seen2:getNodeHalfLinks(), "KNOWS") 
     for i,links2 in pairs(people3) do 
         seen3:addNodeIds(links2) 
     end
@@ -400,16 +401,16 @@ local results = {}
 for j, person in pairs(smaller) do
     local studied_list = {}
     local worked_list = {} 
-    local studied = NodeGetRelationshipsForDirectionForType("Person", person["otherPerson.id"], Direction.OUT, "STUDY_AT" )
-    local worked = NodeGetRelationshipsForDirectionForType("Person", person["otherPerson.id"], Direction.OUT, "WORK_AT" )
+    local studied = NodeGetRelationships("Person", tostring(person["otherPerson.id"]), Direction.OUT, "STUDY_AT" )
+    local worked = NodeGetRelationships("Person", tostring(person["otherPerson.id"]), Direction.OUT, "WORK_AT" )
  
     for s = 1, #studied do
-        table.insert(studied_list, NodeGetPropertyById(studied[s]:getEndingNodeId(), "name"))
+        table.insert(studied_list, NodeGetProperty(studied[s]:getEndingNodeId(), "name"))
         table.insert(studied_list, RelationshipGetProperty(studied[s]:getId(), "classYear"))
     end
     
    for s = 1, #worked do
-      table.insert(worked_list, NodeGetPropertyById(worked[s]:getEndingNodeId(), "name"))
+      table.insert(worked_list, NodeGetProperty(worked[s]:getEndingNodeId(), "name"))
       table.insert(worked_list, RelationshipGetProperty(worked[s]:getId(), "workFrom"))
    end
   
@@ -429,7 +430,7 @@ local target_ids = Roar.new()
 local targets = FindNodeIds("Person", "firstName", Operation.EQ, "Carmen", 0, 999999)
 target_ids:addIds(targets)
 table.sort(targets)
-local target_knows = LinksGetLinksForType(target_ids:getNodeHalfLinks(), "KNOWS") 
+local target_knows = LinksGetLinks(target_ids:getNodeHalfLinks(), "KNOWS") 
 local target_knows_ids = Roar.new()
 
 local backwards = {}
@@ -455,7 +456,7 @@ for i, ids in pairs(backwards) do
 end
 
 local node_id = NodeGetId("Person", "30786325583618")
-local people = NodeGetLinksByIdForType(node_id, "KNOWS")
+local people = NodeGetLinks(node_id, "KNOWS")
 local seen1 = Roar.new()
 local seen2 = Roar.new()
 local near2 = Roar.new()
@@ -463,7 +464,7 @@ local seen3 = Roar.new()
 
 seen1:addNodeIds(people)
 
-local people2 = LinksGetLinksForType(people, "KNOWS")
+local people2 = LinksGetLinks(people, "KNOWS")
 for i,links in pairs(people2) do 
   seen2:addNodeIds(links)
 end  
@@ -519,16 +520,16 @@ local results = {}
 for j, person in pairs(smaller) do
     local studied_list = {}
     local worked_list = {} 
-    local studied = NodeGetRelationshipsForDirectionForType("Person", tostring(person["otherPerson.id"]), Direction.OUT, "STUDY_AT" )
-    local worked = NodeGetRelationshipsForDirectionForType("Person", tostring(person["otherPerson.id"]), Direction.OUT, "WORK_AT" )
+    local studied = NodeGetRelationships("Person", tostring(person["otherPerson.id"]), Direction.OUT, "STUDY_AT" )
+    local worked = NodeGetRelationships("Person", tostring(person["otherPerson.id"]), Direction.OUT, "WORK_AT" )
  
     for s = 1, #studied do
-        table.insert(studied_list, NodeGetPropertyById(studied[s]:getEndingNodeId(), "name"))
+        table.insert(studied_list, NodeGetProperty(studied[s]:getEndingNodeId(), "name"))
         table.insert(studied_list, RelationshipGetProperty(studied[s]:getId(), "classYear"))
     end
     
    for s = 1, #worked do
-          table.insert(worked_list, NodeGetPropertyById(worked[s]:getEndingNodeId(), "name"))
+          table.insert(worked_list, NodeGetProperty(worked[s]:getEndingNodeId(), "name"))
           table.insert(worked_list, RelationshipGetProperty(worked[s]:getId(), "workFrom"))
     end
   

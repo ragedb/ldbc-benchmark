@@ -53,39 +53,39 @@ end
 
 
 for i, replyOf in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/comment_replyOf_post_0_0.csv", "|") do
-    RelationshipAddEmpty("REPLY_OF", "Message", replyOf['Comment.id'], "Message", replyOf['Post.id'])
+    RelationshipAdd("REPLY_OF", "Message", replyOf['Comment.id'], "Message", replyOf['Post.id'])
 end
 
 for i, replyOf in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/comment_replyOf_comment_0_0.csv", "|") do
-    RelationshipAddEmpty("REPLY_OF", "Message", replyOf['Comment1.id'], "Message", replyOf['Comment2.id'])
+    RelationshipAdd("REPLY_OF", "Message", replyOf['Comment1.id'], "Message", replyOf['Comment2.id'])
 end
 
 for i, containerOf in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/forum_containerOf_post_0_0.csv", "|") do
-    RelationshipAddEmpty("CONTAINER_OF", "Forum", containerOf['Forum.id'], "Message", containerOf['Post.id'])
+    RelationshipAdd("CONTAINER_OF", "Forum", containerOf['Forum.id'], "Message", containerOf['Post.id'])
 end
 
 for i, hasCreator in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/post_hasCreator_person_0_0.csv", "|") do
-    RelationshipAddEmpty("HAS_CREATOR", "Message", hasCreator['Post.id'], "Person", hasCreator['Person.id'])
+    RelationshipAdd("HAS_CREATOR", "Message", hasCreator['Post.id'], "Person", hasCreator['Person.id'])
 end
 
 for i, hasCreator in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/comment_hasCreator_person_0_0.csv", "|") do
-    RelationshipAddEmpty("HAS_CREATOR", "Message", hasCreator['Comment.id'], "Person", hasCreator['Person.id'])
+    RelationshipAdd("HAS_CREATOR", "Message", hasCreator['Comment.id'], "Person", hasCreator['Person.id'])
 end
 
 for i, isLocatedIn in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/person_isLocatedIn_place_0_0.csv", "|") do
-    RelationshipAddEmpty("IS_LOCATED_IN", "Person", isLocatedIn['Person.id'], "Place", isLocatedIn['Place.id'])
+    RelationshipAdd("IS_LOCATED_IN", "Person", isLocatedIn['Person.id'], "Place", isLocatedIn['Place.id'])
 end
 
 for i, isLocatedIn in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/organisation_isLocatedIn_place_0_0.csv", "|") do
-    RelationshipAddEmpty("IS_LOCATED_IN", "Organisation", isLocatedIn['Organisation.id'], "Place", isLocatedIn['Place.id'])
+    RelationshipAdd("IS_LOCATED_IN", "Organisation", isLocatedIn['Organisation.id'], "Place", isLocatedIn['Place.id'])
 end
 
 for i, isLocatedIn in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/comment_isLocatedIn_place_0_0.csv", "|") do
-    RelationshipAddEmpty("IS_LOCATED_IN", "Message", isLocatedIn['Comment.id'], "Place", isLocatedIn['Place.id'])
+    RelationshipAdd("IS_LOCATED_IN", "Message", isLocatedIn['Comment.id'], "Place", isLocatedIn['Place.id'])
 end
 
 for i, isLocatedIn in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/post_isLocatedIn_place_0_0.csv", "|") do
-    RelationshipAddEmpty("IS_LOCATED_IN", "Message", isLocatedIn['Post.id'], "Place", isLocatedIn['Place.id'])
+    RelationshipAdd("IS_LOCATED_IN", "Message", isLocatedIn['Post.id'], "Place", isLocatedIn['Place.id'])
 end
 
 for i, knows in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/person_knows_person_0_0.csv", "|") do
@@ -93,23 +93,23 @@ for i, knows in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/person_kno
 end
 
 for i, hasInterest in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/person_hasInterest_tag_0_0.csv", "|") do
-    RelationshipAddEmpty("HAS_INTEREST", "Person", hasInterest['Person.id'], "Tag", hasInterest['Tag.id'])
+    RelationshipAdd("HAS_INTEREST", "Person", hasInterest['Person.id'], "Tag", hasInterest['Tag.id'])
 end
 
 for i, hasTag in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/forum_hasTag_tag_0_0.csv", "|") do
-    RelationshipAddEmpty("HAS_TAG", "Forum", hasTag['Forum.id'], "Tag", hasTag['Tag.id'])
+    RelationshipAdd("HAS_TAG", "Forum", hasTag['Forum.id'], "Tag", hasTag['Tag.id'])
 end
 
 for i, hasTag in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/comment_hasTag_tag_0_0.csv", "|") do
-    RelationshipAddEmpty("HAS_TAG", "Message", hasTag['Comment.id'], "Tag", hasTag['Tag.id'])
+    RelationshipAdd("HAS_TAG", "Message", hasTag['Comment.id'], "Tag", hasTag['Tag.id'])
 end
 
 for i, hasTag in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/post_hasTag_tag_0_0.csv", "|") do
-    RelationshipAddEmpty("HAS_TAG", "Message", hasTag['Post.id'], "Tag", hasTag['Tag.id'])
+    RelationshipAdd("HAS_TAG", "Message", hasTag['Post.id'], "Tag", hasTag['Tag.id'])
 end
 
 for i, hasModerator in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/forum_hasModerator_person_0_0.csv", "|") do
-    RelationshipAddEmpty("HAS_MODERATOR", "Forum", hasModerator['Forum.id'], "Person", hasModerator['Person.id'])
+    RelationshipAdd("HAS_MODERATOR", "Forum", hasModerator['Forum.id'], "Person", hasModerator['Person.id'])
 end
 
 for i, hasMember in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/forum_hasMember_person_0_0.csv", "|") do
@@ -117,11 +117,11 @@ for i, hasMember in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/forum_
 end
 
 for i, hasType in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/tag_hasType_tagclass_0_0.csv", "|") do
-    RelationshipAddEmpty("HAS_TYPE", "Tag", hasType['Tag.id'], "TagClass", hasType['TagClass.id'])
+    RelationshipAdd("HAS_TYPE", "Tag", hasType['Tag.id'], "TagClass", hasType['TagClass.id'])
 end
 
 for i, isSubclassOf in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/tagclass_isSubclassOf_tagclass_0_0.csv", "|") do
-    RelationshipAddEmpty("IS_SUBCLASS_OF", "TagClass", isSubclassOf['TagClass1.id'], "TagClass", isSubclassOf['TagClass2.id'])
+    RelationshipAdd("IS_SUBCLASS_OF", "TagClass", isSubclassOf['TagClass1.id'], "TagClass", isSubclassOf['TagClass2.id'])
 end
 
 for i, studyAt in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/person_studyAt_organisation_0_0.csv", "|") do
@@ -141,7 +141,7 @@ for i, likes in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/person_lik
 end
 
 for i, isPartOf in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf10/place_isPartOf_place_0_0.csv", "|") do
-    RelationshipAddEmpty("IS_PART_OF", "Place", isPartOf['Place1.id'], "Place", isPartOf['Place2.id'])
+    RelationshipAdd("IS_PART_OF", "Place", isPartOf['Place1.id'], "Place", isPartOf['Place2.id'])
 end
 
 local person_id = 0
@@ -183,26 +183,26 @@ NodeSetProperty("Person", next_id, "speaks", languages)
 
 
 nodes = {
-   ["Person"] = NodeTypesGetCountByType("Person"),
-   ["Place"] = NodeTypesGetCountByType("Place"),
-   ["Tag"] = NodeTypesGetCountByType("Tag"),
-   ["TagClass"] = NodeTypesGetCountByType("TagClass"),
-   ["Organisation"] = NodeTypesGetCountByType("Organisation"),
-   ["Forum"] = NodeTypesGetCountByType("Forum"),
-   ["Message"] = NodeTypesGetCountByType("Message")
+   ["Person"] = NodeTypesGetCount("Person"),
+   ["Place"] = NodeTypesGetCount("Place"),
+   ["Tag"] = NodeTypesGetCount("Tag"),
+   ["TagClass"] = NodeTypesGetCount("TagClass"),
+   ["Organisation"] = NodeTypesGetCount("Organisation"),
+   ["Forum"] = NodeTypesGetCount("Forum"),
+   ["Message"] = NodeTypesGetCount("Message")
 }
 relationships = {
-      ["CONTAINER_OF"] = RelationshipTypesGetCountByType("CONTAINER_OF"),
-      ["KNOWS"] = RelationshipTypesGetCountByType("KNOWS"),
-      ["HAS_INTEREST"] = RelationshipTypesGetCountByType("HAS_INTEREST"),
-      ["HAS_MEMBER"] = RelationshipTypesGetCountByType("HAS_MEMBER"),
-      ["HAS_MODERATOR"] = RelationshipTypesGetCountByType("HAS_MODERATOR"),
-      ["HAS_TAG"] = RelationshipTypesGetCountByType("HAS_TAG"),
-      ["HAS_TYPE"] = RelationshipTypesGetCountByType("HAS_TYPE"),
-      ["IS_LOCATED_IN"] = RelationshipTypesGetCountByType("IS_LOCATED_IN"),
-      ["IS_PART_OF"] = RelationshipTypesGetCountByType("IS_PART_OF"),
-      ["LIKES"] = RelationshipTypesGetCountByType("LIKES"),
-      ["STUDY_AT"] = RelationshipTypesGetCountByType("STUDY_AT"),
-      ["WORK_AT"] = RelationshipTypesGetCountByType("WORK_AT")
+      ["CONTAINER_OF"] = RelationshipTypesGetCount("CONTAINER_OF"),
+      ["KNOWS"] = RelationshipTypesGetCount("KNOWS"),
+      ["HAS_INTEREST"] = RelationshipTypesGetCount("HAS_INTEREST"),
+      ["HAS_MEMBER"] = RelationshipTypesGetCount("HAS_MEMBER"),
+      ["HAS_MODERATOR"] = RelationshipTypesGetCount("HAS_MODERATOR"),
+      ["HAS_TAG"] = RelationshipTypesGetCount("HAS_TAG"),
+      ["HAS_TYPE"] = RelationshipTypesGetCount("HAS_TYPE"),
+      ["IS_LOCATED_IN"] = RelationshipTypesGetCount("IS_LOCATED_IN"),
+      ["IS_PART_OF"] = RelationshipTypesGetCount("IS_PART_OF"),
+      ["LIKES"] = RelationshipTypesGetCount("LIKES"),
+      ["STUDY_AT"] = RelationshipTypesGetCount("STUDY_AT"),
+      ["WORK_AT"] = RelationshipTypesGetCount("WORK_AT")
 }
 nodes, relationships
